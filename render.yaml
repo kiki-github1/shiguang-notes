@@ -1,0 +1,39 @@
+# ============================================================
+# Render 蓝图（Blueprint）
+#
+# 用法：仓库推到 GitHub 后 → Render 控制台 New > Blueprint → 选中本仓库。
+# Render 会读取本文件自动建好服务，构建与启动命令无需手填。
+# 文档：https://render.com/docs/blueprint-spec
+#
+# 这是「让网站真正上线」最省事的一条路：连 Node 服务、自动签发 HTTPS、
+# 推代码即自动重新部署，不用自己买服务器。
+# ============================================================
+services:
+  - type: web
+    name: shiguang-blog
+    runtime: node
+    plan: free
+    # 免费档可选 singapore / frankfurt / oregon / ohio / virginia，亚洲用户建议 singapore
+    region: singapore
+    branch: main
+    # 本站是 SSR 应用，没有构建产物，但需要装依赖。
+    # --omit=dev 跳过开发依赖，镜像更小、冷启动更快。
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    # 健康检查打这个接口，返回 2xx 即认为实例存活
+    healthCheckPath: /api/stats
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Render 前面有它自己的反向代理，必须开启，
+      # 否则限流拿到的是代理 IP，全站会共享同一份配额。
+      - key: TRUST_PROXY
+        value: "true"
+      # 锁定 Node 主版本，避免平台默认版本漂移
+      - key: NODE_VERSION
+        value: "22"
+      # sync: false —— 不写死在此，部署后到控制台 Environment 面板填真实域名。
+      # 留空也能跑，只是 RSS / sitemap 里的链接会是 localhost。
+      - key: SITE_URL
+        sync: false

@@ -1,0 +1,37 @@
+<%- include('partials/head') %>
+<%- include('partials/header') %>
+
+<main id="main" class="shell">
+  <header class="page-head">
+    <p class="page-kicker">S E A R C H</p>
+    <h1 class="page-title"><%= query ? '檢索結果' : '檢索' %></h1>
+    <% if (query) { %>
+      <p class="page-desc">關鍵詞「<strong><%= query %></strong>」，得 <strong><%= results.length %></strong> 篇。</p>
+    <% } else { %>
+      <p class="page-desc">輸入關鍵詞，可匹配標題、標籤、摘要與正文。</p>
+    <% } %>
+  </header>
+
+  <form class="search-form search-form-inline" action="/search" method="get" role="search">
+    <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
+      <circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path>
+    </svg>
+    <input type="search" name="q" value="<%= query %>" placeholder="檢索標題、標籤或正文…" autocomplete="off" aria-label="檢索關鍵詞">
+    <button type="submit" class="btn-primary">檢 索</button>
+  </form>
+
+  <% if (query && results.length) { %>
+    <div class="post-list">
+      <% results.forEach(function (post) { %>
+        <%- include('partials/post-card', { post: post }) %>
+      <% }); %>
+    </div>
+  <% } else if (query) { %>
+    <div class="empty-state">
+      <p>未尋得與「<%= query %>」相關的文章。</p>
+      <p class="empty-hint">換個關鍵詞試試，或 <a href="/tags">按標籤瀏覽</a>。</p>
+    </div>
+  <% } %>
+</main>
+
+<%- include('partials/footer') %>

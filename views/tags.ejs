@@ -1,0 +1,71 @@
+<%- include('partials/head') %>
+<%- include('partials/header') %>
+
+<main id="main" class="shell">
+  <header class="page-head">
+    <p class="page-kicker">T A G S</p>
+    <h1 class="page-title">標籤</h1>
+    <p class="page-desc">共 <%= tags.length %> 枚標籤，點選任一標籤可閱覽該主題下的全部文章。</p>
+  </header>
+
+  <% if (tags.length) { %>
+    <div class="tag-cloud tag-cloud-lg">
+      <% tags.forEach(function (tag) { %>
+        <a class="tag-pill" href="/tag/<%= encodeURIComponent(tag.name) %>">
+          <%= tag.name %><span class="tag-pill-count"><%= tag.count %></span>
+        </a>
+      <% }); %>
+    </div>
+
+    <section class="section is-spaced">
+      <div class="section-head">
+        <h2 class="section-title"><span class="section-num">壹</span>標籤明細</h2>
+      </div>
+      <div class="tag-detail-grid">
+        <% tags.forEach(function (tag) { %>
+          <div class="tag-detail">
+            <div class="tag-detail-head">
+              <a href="/tag/<%= encodeURIComponent(tag.name) %>"><%= tag.name %></a>
+              <span><%= tag.count %> 篇</span>
+            </div>
+            <ul>
+              <% tag.posts.slice(0, 4).forEach(function (post) { %>
+                <li>
+                  <time datetime="<%= post.date %>"><%= post.date.slice(5) %></time>
+                  <a href="/post/<%= encodeURIComponent(post.slug) %>"><%= post.title %></a>
+                </li>
+              <% }); %>
+            </ul>
+            <% if (tag.posts.length > 4) { %>
+              <a class="tag-detail-more" href="/tag/<%= encodeURIComponent(tag.name) %>">尚有 <%= tag.posts.length - 4 %> 篇 →</a>
+            <% } %>
+          </div>
+        <% }); %>
+      </div>
+    </section>
+  <% } else { %>
+    <div class="empty-state">
+      <p>尚無任何標籤。</p>
+      <p class="empty-hint">在文章首部的 frontmatter 裡加上 <code>tags: [標籤一, 標籤二]</code> 即可。</p>
+    </div>
+  <% } %>
+
+  <% if (categories.length) { %>
+    <section class="section">
+      <div class="section-head">
+        <h2 class="section-title"><span class="section-num">貳</span>分類</h2>
+        <a class="section-link" href="/categories">檢視全部 →</a>
+      </div>
+      <div class="cat-row">
+        <% categories.forEach(function (cat) { %>
+          <a class="cat-card" href="/category/<%= encodeURIComponent(cat.name) %>">
+            <strong><%= cat.name %></strong>
+            <span><%= cat.count %> 篇</span>
+          </a>
+        <% }); %>
+      </div>
+    </section>
+  <% } %>
+</main>
+
+<%- include('partials/footer') %>

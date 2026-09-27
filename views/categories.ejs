@@ -1,0 +1,36 @@
+<%- include('partials/head') %>
+<%- include('partials/header') %>
+
+<main id="main" class="shell">
+  <header class="page-head">
+    <p class="page-kicker">C A T E G O R I E S</p>
+    <h1 class="page-title">分類</h1>
+    <p class="page-desc">共 <%= categories.length %> 個分類，按類別歸攏全部文章。</p>
+  </header>
+
+  <% if (categories.length) { %>
+    <div class="cat-detail-list">
+      <% categories.forEach(function (cat) { %>
+        <section class="cat-detail">
+          <div class="cat-detail-head">
+            <h2><a href="/category/<%= encodeURIComponent(cat.name) %>"><%= cat.name %></a></h2>
+            <span><%= cat.count %> 篇</span>
+          </div>
+          <ul class="cat-detail-posts">
+            <% cat.posts.forEach(function (post) { %>
+              <li>
+                <time datetime="<%= post.date %>"><%= post.date %></time>
+                <a href="/post/<%= encodeURIComponent(post.slug) %>"><%= post.title %></a>
+                <span class="cat-detail-tags"><%= post.tags.slice(0, 2).join(' · ') %></span>
+              </li>
+            <% }); %>
+          </ul>
+        </section>
+      <% }); %>
+    </div>
+  <% } else { %>
+    <div class="empty-state"><p>尚無任何分類。</p></div>
+  <% } %>
+</main>
+
+<%- include('partials/footer') %>

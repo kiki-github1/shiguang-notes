@@ -1,0 +1,206 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="none">
+  <!-- ============================================================
+       山水长卷 · 纯黑透明稿，由 CSS mask 上色
+       构图：云气 → 雁阵 → 远山 → 云带 → 中景山（含皴笔、松林）
+             → 水面（波纹、远帆）→ 沙洲 → 近景坡岸（松、亭）→ 前景
+       全部山体用竖向渐变淡出，不出现硬边，故整体柔和而不突兀
+       ============================================================ -->
+  <defs>
+    <!-- 横向渐隐：版心处略减，两侧保留，使画不压正文（幅度刻意做小，避免中段发空） -->
+    <linearGradient id="hFade" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1600" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="22%" stop-color="#fff" stop-opacity=".88"/>
+      <stop offset="46%" stop-color="#fff" stop-opacity=".78"/>
+      <stop offset="54%" stop-color="#fff" stop-opacity=".78"/>
+      <stop offset="78%" stop-color="#fff" stop-opacity=".88"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity="1"/>
+    </linearGradient>
+    <mask id="hMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1600" height="900">
+      <rect x="0" y="0" width="1600" height="900" fill="url(#hFade)"/>
+    </mask>
+
+    <!-- 山体：先立骨，再于山脚化入云气，避免整片虚掉 -->
+    <linearGradient id="fadeFar" gradientUnits="userSpaceOnUse" x1="0" y1="288" x2="0" y2="604">
+      <stop offset="0" stop-color="#000" stop-opacity="1"/>
+      <stop offset=".55" stop-color="#000" stop-opacity=".84"/>
+      <stop offset=".86" stop-color="#000" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="fadeMid" gradientUnits="userSpaceOnUse" x1="0" y1="396" x2="0" y2="724">
+      <stop offset="0" stop-color="#000" stop-opacity="1"/>
+      <stop offset=".52" stop-color="#000" stop-opacity=".86"/>
+      <stop offset=".85" stop-color="#000" stop-opacity=".26"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="fadeShore" gradientUnits="userSpaceOnUse" x1="0" y1="700" x2="0" y2="900">
+      <stop offset="0" stop-color="#000" stop-opacity=".42"/>
+      <stop offset=".55" stop-color="#000" stop-opacity=".82"/>
+      <stop offset="1" stop-color="#000" stop-opacity="1"/>
+    </linearGradient>
+    <linearGradient id="fadeFore" gradientUnits="userSpaceOnUse" x1="0" y1="838" x2="0" y2="900">
+      <stop offset="0" stop-color="#000" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#000" stop-opacity="1"/>
+    </linearGradient>
+  </defs>
+
+  <g mask="url(#hMask)">
+
+    <!-- ================= 高层云气 ================= -->
+    <g fill="#000" opacity=".09">
+      <ellipse cx="330" cy="212" rx="270" ry="24"/>
+      <ellipse cx="1000" cy="176" rx="300" ry="20"/>
+      <ellipse cx="640" cy="264" rx="240" ry="18"/>
+      <ellipse cx="1400" cy="232" rx="230" ry="20"/>
+    </g>
+
+    <!-- ================= 雁阵（人字，向左飞） ================= -->
+    <g fill="none" stroke="#000" stroke-width="2.6" stroke-linecap="round">
+      <g transform="translate(1190,145)">
+        <g transform="translate(0,0) scale(1)"><path d="M-16 3c6-7 11-8 16-2 5-6 10-5 16 2"/></g>
+        <g transform="translate(36,-26) scale(.94)"><path d="M-16 3c6-7 11-8 16-2 5-6 10-5 16 2"/></g>
+        <g transform="translate(72,-52) scale(.9)"><path d="M-16 3c6-7 11-8 16-2 5-6 10-5 16 2"/></g>
+        <g transform="translate(108,-78) scale(.84)"><path d="M-16 3c6-7 11-8 16-2 5-6 10-5 16 2"/></g>
+        <g transform="translate(36,26) scale(.92)"><path d="M-16 3c6-7 11-8 16-2 5-6 10-5 16 2"/></g>
+        <g transform="translate(72,52) scale(.88)"><path d="M-16 3c6-7 11-8 16-2 5-6 10-5 16 2"/></g>
+        <g transform="translate(108,78) scale(.82)"><path d="M-16 3c6-7 11-8 16-2 5-6 10-5 16 2"/></g>
+      </g>
+      <!-- 远处零星落单的雁 -->
+      <g transform="translate(1330,236) scale(.7)"><path d="M-16 3c6-7 11-8 16-2 5-6 10-5 16 2"/></g>
+      <g transform="translate(1058,96) scale(.66)"><path d="M-16 3c6-7 11-8 16-2 5-6 10-5 16 2"/></g>
+    </g>
+
+    <!-- ================= 卷云钩线 ================= -->
+    <g fill="none" stroke="#000" stroke-width="2.4" stroke-linecap="round" opacity=".28">
+      <path d="M120 296c44-28 92-32 124-14 24 13 28 38 9 51-15 10-36 6-42-9-4-13 5-24 19-24 15 0 25 11 23 24"/>
+      <path d="M204 296c40-24 82-28 112-13"/>
+      <path d="M628 268c40-26 84-29 113-13"/>
+      <path d="M860 306c44-28 92-32 124-14 24 13 28 38 9 51-15 10-36 6-42-9-4-13 5-24 19-24 15 0 25 11 23 24"/>
+    </g>
+
+    <!-- ================= 远山 ================= -->
+    <!-- 山脊线必须一路画到画稿右边界（x=1600）再闭合：
+         若中途收笔就 v306 下坠，收笔处会留下一条垂直硬边（右侧空白、左侧有山，
+         在宣纸上形成可见的直切痕）。下方中景山与沙洲同理。 -->
+    <path d="M0 322c72-46 122-72 182-64 52 7 88 36 142 44 52 7 92-30 156-42 56-11 98 16 154 30 54 13 94-22 152-32 56-9 120 16 226 44 62 16 116 28 226 40 44 5 76 8 122 12c46 4 78 6 126 8c46 2 78 2 126 2v306H0z"
+          fill="url(#fadeFar)" opacity=".32"/>
+
+    <!-- 云带 -->
+    <g fill="#000" opacity=".1">
+      <ellipse cx="430" cy="366" rx="320" ry="20"/>
+      <ellipse cx="1210" cy="352" rx="290" ry="18"/>
+      <ellipse cx="820" cy="392" rx="260" ry="16"/>
+    </g>
+
+    <!-- ================= 中景山 ================= -->
+    <path d="M0 452c92-40 156-66 232-58 74 8 118 40 186 44 66 4 108-32 176-42 68-10 116 22 186 32 68 10 116-22 186-28 68-6 124 12 188 26 44 10 78 18 118 24c46 8 78 12 126 16c46 4 76 6 126 8c28 1 46 2 86 2v350H0z"
+          fill="url(#fadeMid)" opacity=".52"/>
+
+    <!-- 皴笔 -->
+    <g stroke="#000" stroke-width="1.5" fill="none" opacity=".3" stroke-linecap="round">
+      <path d="M232 414c7 15 9 30 7 45M256 410c9 13 12 27 11 42M280 414c7 14 9 28 7 42"/>
+      <path d="M586 424c7 14 9 28 7 42M610 420c8 13 11 26 10 40M634 424c7 13 9 26 7 40"/>
+      <path d="M1010 438c7 14 9 28 7 42M1034 434c8 13 11 26 10 40"/>
+      <path d="M1382 428c7 14 9 28 7 42M1406 424c8 13 11 26 10 40"/>
+      <path d="M420 400c6 12 8 24 6 36M444 396c7 11 9 23 8 35"/>
+      <path d="M1196 418c6 12 8 24 6 36"/>
+    </g>
+
+    <!-- 中景松林 -->
+    <g fill="#000" opacity=".46">
+      <g transform="translate(196,452) scale(.5)">
+        <path d="M0 0v-52" stroke="#000" stroke-width="4" fill="none"/>
+        <path d="M0-30c-11 2-20 9-27 18 13-2 22-7 27-18zM0-30c11 2 20 9 27 18-13-2-22-7-27-18z"/>
+        <path d="M0-42c-9 2-16 8-22 15 11-2 18-6 22-15zM0-42c9 2 16 8 22 15-11-2-18-6-22-15z"/>
+        <path d="M0-52c-6 2-12 6-15 12 8-2 13-5 15-12zM0-52c6 2 12 6 15 12-8-2-13-5-15-12z"/>
+      </g>
+      <g transform="translate(232,454) scale(.42)">
+        <path d="M0 0v-52" stroke="#000" stroke-width="4" fill="none"/>
+        <path d="M0-30c-11 2-20 9-27 18 13-2 22-7 27-18zM0-30c11 2 20 9 27 18-13-2-22-7-27-18z"/>
+        <path d="M0-42c-9 2-16 8-22 15 11-2 18-6 22-15zM0-42c9 2 16 8 22 15-11-2-18-6-22-15z"/>
+      </g>
+      <g transform="translate(1064,470) scale(.46)">
+        <path d="M0 0v-52" stroke="#000" stroke-width="4" fill="none"/>
+        <path d="M0-30c-11 2-20 9-27 18 13-2 22-7 27-18zM0-30c11 2 20 9 27 18-13-2-22-7-27-18z"/>
+        <path d="M0-42c-9 2-16 8-22 15 11-2 18-6 22-15zM0-42c9 2 16 8 22 15-11-2-18-6-22-15z"/>
+      </g>
+      <g transform="translate(1098,472) scale(.38)">
+        <path d="M0 0v-52" stroke="#000" stroke-width="4" fill="none"/>
+        <path d="M0-30c-11 2-20 9-27 18 13-2 22-7 27-18zM0-30c11 2 20 9 27 18-13-2-22-7-27-18z"/>
+      </g>
+    </g>
+
+    <!-- ================= 水面波纹 ================= -->
+    <g stroke="#000" stroke-width="1.7" fill="none" opacity=".26" stroke-linecap="round">
+      <path d="M120 566h74M262 578h52M420 562h86M596 574h48M742 560h64M910 572h56M1054 564h70M1236 576h50M1392 566h62"/>
+      <path d="M190 610h58M340 620h44M508 606h68M672 618h40M826 608h54M988 620h46M1146 610h60M1300 618h42"/>
+      <path d="M150 660h50M296 670h38M452 656h58M620 668h34M770 658h46M930 670h40M1082 660h52M1240 668h36M1386 658h44"/>
+    </g>
+
+    <!-- ================= 远帆 ================= -->
+    <g fill="#000" opacity=".5">
+      <g transform="translate(528,648) scale(.62)">
+        <path d="M0 0v-56" stroke="#000" stroke-width="3" fill="none"/>
+        <path d="M3-54c15 12 21 32 18 50H3z"/>
+        <path d="M-22 0h46l-6 8h-34z"/>
+      </g>
+      <g transform="translate(596,662) scale(.44)">
+        <path d="M0 0v-56" stroke="#000" stroke-width="3" fill="none"/>
+        <path d="M3-54c15 12 21 32 18 50H3z"/>
+        <path d="M-22 0h46l-6 8h-34z"/>
+      </g>
+      <g transform="translate(1020,654) scale(.5)">
+        <path d="M0 0v-56" stroke="#000" stroke-width="3" fill="none"/>
+        <path d="M3-54c15 12 21 32 18 50H3z"/>
+        <path d="M-22 0h46l-6 8h-34z"/>
+      </g>
+    </g>
+
+    <!-- ================= 沙洲 ================= -->
+    <path d="M0 716c86-18 156-28 236-22 80 6 138 24 226 26 88 2 148-16 236-20 88-4 150 10 238 14 88 4 152-10 240-14 88-4 154 6 224 12c60 4 100 5 200 6v188H0z"
+          fill="#000" opacity=".2"/>
+
+    <!-- ================= 近景坡岸 ================= -->
+    <path d="M0 806c104-34 188-56 282-50 94 6 156 34 250 40 94 6 158-26 252-38 94-12 158 12 252 22 94 10 158-18 252-26 94-8 172 12 312 30v116H0z"
+          fill="url(#fadeShore)" opacity=".62"/>
+
+    <!-- 近景松 -->
+    <g fill="#000" opacity=".55">
+      <g transform="translate(150,812) scale(.86)">
+        <path d="M0 0v-52" stroke="#000" stroke-width="4" fill="none"/>
+        <path d="M0-30c-11 2-20 9-27 18 13-2 22-7 27-18zM0-30c11 2 20 9 27 18-13-2-22-7-27-18z"/>
+        <path d="M0-42c-9 2-16 8-22 15 11-2 18-6 22-15zM0-42c9 2 16 8 22 15-11-2-18-6-22-15z"/>
+        <path d="M0-52c-6 2-12 6-15 12 8-2 13-5 15-12zM0-52c6 2 12 6 15 12-8-2-13-5-15-12z"/>
+      </g>
+      <g transform="translate(196,818) scale(.68)">
+        <path d="M0 0v-52" stroke="#000" stroke-width="4" fill="none"/>
+        <path d="M0-30c-11 2-20 9-27 18 13-2 22-7 27-18zM0-30c11 2 20 9 27 18-13-2-22-7-27-18z"/>
+        <path d="M0-42c-9 2-16 8-22 15 11-2 18-6 22-15zM0-42c9 2 16 8 22 15-11-2-18-6-22-15z"/>
+      </g>
+      <g transform="translate(1382,808) scale(.78)">
+        <path d="M0 0v-52" stroke="#000" stroke-width="4" fill="none"/>
+        <path d="M0-30c-11 2-20 9-27 18 13-2 22-7 27-18zM0-30c11 2 20 9 27 18-13-2-22-7-27-18z"/>
+        <path d="M0-42c-9 2-16 8-22 15 11-2 18-6 22-15zM0-42c9 2 16 8 22 15-11-2-18-6-22-15z"/>
+      </g>
+      <g transform="translate(1434,814) scale(.6)">
+        <path d="M0 0v-52" stroke="#000" stroke-width="4" fill="none"/>
+        <path d="M0-30c-11 2-20 9-27 18 13-2 22-7 27-18zM0-30c11 2 20 9 27 18-13-2-22-7-27-18z"/>
+      </g>
+    </g>
+
+    <!-- 江亭 -->
+    <g transform="translate(1236,812) scale(.82)" fill="#000" opacity=".5">
+      <path d="M-30 0c10-7 17-14 19-21h22c2 7 9 14 19 21z"/>
+      <path d="M-34 -2c3-2 6-2 9-1M34 -2c-3-2-6-2-9-1" stroke="#000" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M-14 0v22M14 0v22M-20 22h40" stroke="#000" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+    </g>
+
+    <!-- ================= 前景坡 ================= -->
+    <path d="M0 878c120-14 220-6 340-2 120 4 210-8 330-8 120 0 210 10 330 8 120-2 216-10 336-6 88 3 166 5 264 6v24H0z"
+          fill="url(#fadeFore)"/>
+
+    <!-- 前景水痕 -->
+    <g stroke="#000" stroke-width="2" fill="none" opacity=".42" stroke-linecap="round">
+      <path d="M96 892h88M300 896h62M508 890h96M760 896h70M980 890h80M1214 894h66M1394 890h74"/>
+    </g>
+  </g>
+</svg>

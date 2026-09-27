@@ -1,0 +1,118 @@
+/* ==========================================================================
+   代码高亮 —— 墨色系配色，随宣纸 / 墨夜主题切换
+   ========================================================================== */
+
+html[data-theme="dark"] {
+  --hl-comment: #6b6350;
+  --hl-keyword: #d98b6a;
+  --hl-string: #a8bb78;
+  --hl-number: #d9a05b;
+  --hl-func: #7fa8c9;
+  --hl-builtin: #d9b166;
+  --hl-type: #d9b166;
+  --hl-literal: #c98f5c;
+  --hl-variable: #ded5c2;
+  --hl-tag: #d47a6a;
+  --hl-attr: #d0a969;
+  --hl-meta: #8c8170;
+  --hl-regexp: #8fc4c9;
+  --hl-punct: #8c8170;
+  --hl-addition: #9fbf72;
+  --hl-deletion: #cf7a6a;
+  --hl-addition-bg: rgba(159, 191, 114, 0.1);
+  --hl-deletion-bg: rgba(207, 122, 106, 0.1);
+}
+
+html[data-theme="light"] {
+  --hl-comment: #9c9384;
+  --hl-keyword: #8c3a24;
+  --hl-string: #4a6b2a;
+  --hl-number: #9a5a1e;
+  --hl-func: #2f5a80;
+  --hl-builtin: #8a6a20;
+  --hl-type: #8a6a20;
+  --hl-literal: #8a5520;
+  --hl-variable: #2b2721;
+  --hl-tag: #a83226;
+  --hl-attr: #7d5f1c;
+  --hl-meta: #877c69;
+  --hl-regexp: #1f6b70;
+  --hl-punct: #6b6355;
+  --hl-addition: #3f6b28;
+  --hl-deletion: #a83226;
+  --hl-addition-bg: rgba(63, 107, 40, 0.09);
+  --hl-deletion-bg: rgba(168, 50, 38, 0.09);
+}
+
+.hljs { background: transparent; color: var(--text); }
+
+.hljs-comment,
+.hljs-quote { color: var(--hl-comment); font-style: italic; }
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-doctag,
+.hljs-formula { color: var(--hl-keyword); }
+
+.hljs-string,
+.hljs-selector-attr,
+.hljs-selector-pseudo,
+.hljs-char.escape_,
+.hljs-template-tag,
+.hljs-template-variable { color: var(--hl-string); }
+
+.hljs-number,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-link { color: var(--hl-number); }
+
+.hljs-title,
+.hljs-title.function_,
+.hljs-function .hljs-title,
+.hljs-section { color: var(--hl-func); }
+
+.hljs-title.class_,
+.hljs-class .hljs-title { color: var(--hl-type); }
+
+.hljs-built_in,
+.hljs-type,
+.hljs-params { color: var(--hl-builtin); }
+
+.hljs-literal,
+.hljs-boolean { color: var(--hl-literal); }
+
+.hljs-variable,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class { color: var(--hl-variable); }
+
+.hljs-tag { color: var(--hl-tag); }
+
+.hljs-attr,
+.hljs-attribute,
+.hljs-property { color: var(--hl-attr); }
+
+.hljs-meta,
+.hljs-meta .hljs-keyword,
+.hljs-meta .hljs-string { color: var(--hl-meta); }
+
+.hljs-regexp { color: var(--hl-regexp); }
+
+.hljs-punctuation,
+.hljs-operator { color: var(--hl-punct); }
+
+.hljs-addition {
+  color: var(--hl-addition);
+  background: var(--hl-addition-bg);
+  display: inline-block;
+  width: 100%;
+}
+.hljs-deletion {
+  color: var(--hl-deletion);
+  background: var(--hl-deletion-bg);
+  display: inline-block;
+  width: 100%;
+}
+
+.hljs-emphasis { font-style: italic; }
+.hljs-strong { font-weight: 700; }

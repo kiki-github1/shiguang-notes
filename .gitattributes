@@ -1,0 +1,21 @@
+# 统一换行符为 LF。本项目在 Windows 上开发，若不声明，
+# 提交时会被转成 CRLF，换到 Linux 服务器或他人机器上就出现
+# 「整个文件都被改动」的伪 diff，review 时几乎不可读。
+* text=auto eol=lf
+
+# 二进制文件不做换行转换，否则会被损坏
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.ico  binary
+*.avif binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.eot   binary
+
+# 语言统计时把依赖与第三方资源排除，避免仓库被判定成 JS 项目
+node_modules/  linguist-vendored
+public/vendor/ linguist-vendored

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="<%= site.language %>" data-theme="<%= theme.default %>">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title><%= title ? `${title} · ${site.title}` : `${site.title} · ${site.subtitle}` %></title>
+  <meta name="description" content="<%= description || site.description %>">
+  <meta name="author" content="<%= site.author %>">
+  <meta name="generator" content="Express + Markdown">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="<%= theme.default === 'dark' ? '#14110d' : '#f2ebdd' %>">
+  <link rel="canonical" href="<%= site.url %><%= currentPath %>">
+  <link rel="alternate" type="application/rss+xml" title="<%= site.title %>" href="/rss.xml">
+
+  <meta property="og:type" content="<%= typeof post !== 'undefined' && post ? 'article' : 'website' %>">
+  <meta property="og:site_name" content="<%= site.title %>">
+  <meta property="og:title" content="<%= title || site.title %>">
+  <meta property="og:description" content="<%= description || site.description %>">
+  <meta property="og:url" content="<%= site.url %><%= currentPath %>">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <%# 站点图标：朱砂单字印 %>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='3' fill='%23a32e26'/><rect x='3' y='3' width='26' height='26' rx='1.5' fill='none' stroke='%23fbf7ef' stroke-width='1.6' opacity='.55'/><text x='16' y='23.5' font-size='19' text-anchor='middle' fill='%23fbf7ef' font-family='Songti SC,SimSun,serif'>%E6%8B%BE</text></svg>">
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/highlight.css">
+  <script src="/js/theme.js"></script>
+  <%# 主题色注入：唯一的样式内联点，用每次请求的 nonce 放行，因此 CSP 可以彻底关掉 unsafe-inline %>
+  <style nonce="<%= nonce %>">
+    :root { --accent: <%= theme.accent %>; }
+    html[data-theme="dark"] { --accent: <%= theme.accentDark || theme.accent %>; }
+  </style>
+</head>
+<body class="<%= bodyClass %>">
+  <a class="skip-link" href="#main">跳到正文</a>
+
+  <%# 山水长卷底纹：纯装饰，不参与交互，强度已标定至不影响阅读 %>
+  <div class="ink-bg" aria-hidden="true">
+    <span class="ink-landscape"></span>
+  </div>
+
+  <div class="progress-bar" id="progressBar" aria-hidden="true"></div>

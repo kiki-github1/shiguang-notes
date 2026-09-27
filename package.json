@@ -1,0 +1,26 @@
+{
+  "name": "shiguang-blog",
+  "version": "1.0.0",
+  "private": true,
+  "description": "个人博客 —— 技术笔记与生活随笔",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "compression": "^1.7.5",
+    "dayjs": "^1.11.13",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-rate-limit": "^8.7.0",
+    "gray-matter": "^4.0.3",
+    "helmet": "^8.0.0",
+    "highlight.js": "^11.11.1",
+    "markdown-it": "^14.1.0",
+    "markdown-it-anchor": "^9.2.0"
+  }
+}

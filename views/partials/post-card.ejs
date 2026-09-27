@@ -1,0 +1,30 @@
+<article class="post-card<%= post.pinned ? ' is-pinned' : '' %>">
+  <a class="post-card-link" href="/post/<%= encodeURIComponent(post.slug) %>" aria-label="閱讀《<%= post.title %>》">
+    <% if (post.cover) { %>
+      <%# 用 <img> 而非内联 background-image：CSP 得以彻底禁掉内联样式，且顺带获得懒加载 %>
+      <div class="post-card-cover"><img src="<%= post.cover %>" alt="" loading="lazy" decoding="async"></div>
+    <% } %>
+    <div class="post-card-body">
+      <div class="post-card-meta">
+        <time datetime="<%= post.date %>"><%= post.date %></time>
+        <span class="dot" aria-hidden="true"></span>
+        <span><%= post.minutes %> 分鐘</span>
+        <% if (post.pinned) { %><span class="badge badge-pin">置頂</span><% } %>
+        <% if (post.draft) { %><span class="badge badge-draft">草稿</span><% } %>
+      </div>
+
+      <h3 class="post-card-title"><%= post.title %></h3>
+      <p class="post-card-summary"><%= post.summary %></p>
+
+      <div class="post-card-foot">
+        <div class="tag-row">
+          <% post.tags.slice(0, 3).forEach(function (tag) { %>
+            <span class="tag-chip"><%= tag %></span>
+          <% }); %>
+          <% if (post.tags.length > 3) { %><span class="tag-chip tag-more">+<%= post.tags.length - 3 %></span><% } %>
+        </div>
+        <span class="read-more">閱 →</span>
+      </div>
+    </div>
+  </a>
+</article>

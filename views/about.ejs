@@ -1,0 +1,60 @@
+<%- include('partials/head') %>
+<%- include('partials/header') %>
+
+<main id="main" class="shell">
+  <header class="page-head is-centered">
+    <p class="page-kicker">A B O U T</p>
+    <h1 class="page-title"><%= page ? page.title : '關於' %></h1>
+    <div class="ornament" aria-hidden="true"><i></i><b></b><i></i></div>
+    <% if (page && page.description) { %><p class="page-desc is-centered"><%= page.description %></p><% } %>
+    <% if (page && page.updated) { %><p class="page-updated">最後修訂於 <%= page.updated %></p><% } %>
+  </header>
+
+  <div class="about-layout">
+    <div class="about-main">
+      <% if (page) { %>
+        <div class="prose" id="articleContent"><%- page.html %></div>
+      <% } else { %>
+        <div class="empty-state">
+          <p>尚未撰寫關於頁。</p>
+          <p class="empty-hint">在 <code>content/pages/about.md</code> 中寫點什麼吧。</p>
+        </div>
+      <% } %>
+    </div>
+
+    <aside class="about-aside">
+      <div class="aside-card">
+        <h3 class="aside-title">卷 帙 小 計</h3>
+        <ul class="aside-list">
+          <li><span>文章</span><strong><%= stats.postCount %> 篇</strong></li>
+          <li><span>標籤</span><strong><%= stats.tagCount %> 枚</strong></li>
+          <li><span>分類</span><strong><%= stats.categoryCount %> 類</strong></li>
+          <li><span>累計</span><strong><%= stats.totalWords.toLocaleString('zh-CN') %> 字</strong></li>
+          <li><span>始於</span><strong><%= stats.firstYear || '—' %></strong></li>
+        </ul>
+      </div>
+
+      <% if (tags.length) { %>
+        <div class="aside-card">
+          <h3 class="aside-title">常 寫 主 題</h3>
+          <div class="tag-cloud">
+            <% tags.forEach(function (tag) { %>
+              <a class="tag-pill" href="/tag/<%= encodeURIComponent(tag.name) %>"><%= tag.name %></a>
+            <% }); %>
+          </div>
+        </div>
+      <% } %>
+
+      <div class="aside-card">
+        <h3 class="aside-title">訂 閱</h3>
+        <div class="aside-links">
+          <% social.forEach(function (item) { %>
+            <a href="<%= item.url %>"<%= /^https?:/.test(item.url) ? ' target="_blank" rel="noopener noreferrer"' : '' %>><%= item.name %></a>
+          <% }); %>
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,67 @@
+<%- include('partials/head') %>
+<%- include('partials/header') %>
+
+<main id="main" class="shell">
+  <header class="page-head">
+    <p class="page-kicker">A R C H I V E</p>
+    <h1 class="page-title">歸檔</h1>
+    <p class="page-desc">按時間倒序排列的全部文章，共 <%= stats.postCount %> 篇。</p>
+  </header>
+
+  <% if (series.length) { %>
+    <section class="section">
+      <div class="section-head">
+        <h2 class="section-title"><span class="section-num">壹</span>系列</h2>
+      </div>
+      <div class="series-row">
+        <% series.forEach(function (item) { %>
+          <div class="series-card">
+            <div class="series-head">
+              <strong><%= item.name %></strong>
+              <span><%= item.posts.length %> 篇</span>
+            </div>
+            <ol>
+              <% item.posts.slice().reverse().forEach(function (post) { %>
+                <li><a href="/post/<%= encodeURIComponent(post.slug) %>"><%= post.title %></a></li>
+              <% }); %>
+            </ol>
+          </div>
+        <% }); %>
+      </div>
+    </section>
+  <% } %>
+
+  <section class="section">
+    <div class="section-head">
+      <h2 class="section-title"><span class="section-num">貳</span>編年</h2>
+      <span class="section-count">自 <%= stats.firstYear || '—' %> 年起</span>
+    </div>
+
+    <div class="timeline">
+      <% archive.forEach(function (group) { %>
+        <section class="timeline-year">
+          <div class="timeline-year-head">
+            <h2><%= group.year %></h2>
+            <span>凡 <%= group.count %> 篇</span>
+          </div>
+          <ul class="timeline-list">
+            <% group.posts.forEach(function (post) { %>
+              <li class="timeline-item">
+                <span class="timeline-dot" aria-hidden="true"></span>
+                <time datetime="<%= post.date %>"><%= post.date.slice(5) %></time>
+                <a class="timeline-title" href="/post/<%= encodeURIComponent(post.slug) %>"><%= post.title %></a>
+                <span class="timeline-tags">
+                  <% post.tags.slice(0, 3).forEach(function (tag) { %>
+                    <a href="/tag/<%= encodeURIComponent(tag) %>"><%= tag %></a>
+                  <% }); %>
+                </span>
+              </li>
+            <% }); %>
+          </ul>
+        </section>
+      <% }); %>
+    </div>
+  </section>
+</main>
+
+<%- include('partials/footer') %>

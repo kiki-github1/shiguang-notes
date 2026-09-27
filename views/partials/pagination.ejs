@@ -1,0 +1,17 @@
+<% if (page.totalPages > 1) { %>
+  <nav class="pagination" aria-label="分頁導航">
+    <% if (page.hasPrev) { %>
+      <a class="page-btn" href="<%= page.prevPage === 1 ? '/' : `/?page=${page.prevPage}` %>" rel="prev">← 前頁</a>
+    <% } else { %>
+      <span class="page-btn is-disabled">← 前頁</span>
+    <% } %>
+
+    <span class="page-status">第 <strong><%= page.page %></strong> 頁 · 共 <%= page.totalPages %> 頁</span>
+
+    <% if (page.hasNext) { %>
+      <a class="page-btn" href="/?page=<%= page.nextPage %>" rel="next">後頁 →</a>
+    <% } else { %>
+      <span class="page-btn is-disabled">後頁 →</span>
+    <% } %>
+  </nav>
+<% } %>

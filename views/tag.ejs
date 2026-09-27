@@ -1,0 +1,33 @@
+<%- include('partials/head') %>
+<%- include('partials/header') %>
+
+<main id="main" class="shell">
+  <header class="page-head">
+    <p class="page-kicker"><%= tag.kind === '分類' ? 'C A T E G O R Y' : 'T A G' %></p>
+    <h1 class="page-title"><%= tag.name %></h1>
+    <p class="page-desc"><%= description %></p>
+  </header>
+
+  <div class="post-list">
+    <% posts.forEach(function (post) { %>
+      <%- include('partials/post-card', { post: post }) %>
+    <% }); %>
+  </div>
+
+  <% if (siblingTags.length) { %>
+    <section class="section is-spaced">
+      <div class="section-head">
+        <h2 class="section-title"><span class="section-num">另</span>相關<%= tag.kind || '標籤' %></h2>
+      </div>
+      <div class="tag-cloud">
+        <% siblingTags.forEach(function (item) { %>
+          <a class="tag-pill" href="<%= (tag.kind === '分類' ? '/category/' : '/tag/') + encodeURIComponent(item.name) %>">
+            <%= item.name %><span class="tag-pill-count"><%= item.count %></span>
+          </a>
+        <% }); %>
+      </div>
+    </section>
+  <% } %>
+</main>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,84 @@
+<%- include('partials/head') %>
+<%- include('partials/header') %>
+
+<main id="main" class="shell">
+  <section class="hero">
+    <p class="hero-kicker">技 術 筆 記 · 生 活 隨 筆</p>
+    <h1 class="hero-title">
+      <%= site.heroTitle[0] %><br>
+      <span class="hero-em"><%= site.heroTitle[1] %></span>
+    </h1>
+    <p class="hero-desc"><%= site.description %></p>
+
+    <dl class="hero-stats">
+      <div><dt>文章</dt><dd><%= stats.postCount %></dd></div>
+      <div><dt>標籤</dt><dd><%= stats.tagCount %></dd></div>
+      <div><dt>字數</dt><dd><%= Math.round(stats.totalWords / 1000) %>k</dd></div>
+      <div><dt>最近更新</dt><dd><%= stats.lastUpdated || '—' %></dd></div>
+    </dl>
+
+    <span class="hero-vertical" aria-hidden="true"><%= site.title %></span>
+  </section>
+
+  <% if (highlight.length) { %>
+    <section class="section">
+      <div class="section-head">
+        <h2 class="section-title"><span class="section-num">壹</span>精選</h2>
+        <a class="section-link" href="/archive">閱覽全部 →</a>
+      </div>
+
+      <div class="feature-grid">
+        <% highlight.forEach(function (post, index) { %>
+          <a class="feature-card<%= index === 0 ? ' is-lead' : '' %>" href="/post/<%= encodeURIComponent(post.slug) %>">
+            <div class="feature-meta">
+              <time datetime="<%= post.date %>"><%= post.date %></time>
+              <% if (post.category) { %><span class="feature-cat"><%= post.category %></span><% } %>
+            </div>
+            <h3><%= post.title %></h3>
+            <p><%= post.summary %></p>
+            <span class="feature-foot"><%= post.tags.slice(0, 3).map(function (t) { return '· ' + t; }).join('  ') %></span>
+          </a>
+        <% }); %>
+      </div>
+    </section>
+  <% } %>
+
+  <section class="section">
+    <div class="section-head">
+      <h2 class="section-title"><span class="section-num">貳</span>最新文章</h2>
+      <span class="section-count">共 <%= page.total %> 篇</span>
+    </div>
+
+    <% if (page.items.length) { %>
+      <div class="post-list">
+        <% page.items.forEach(function (post) { %>
+          <%- include('partials/post-card', { post: post }) %>
+        <% }); %>
+      </div>
+      <%- include('partials/pagination', { page: page }) %>
+    <% } else { %>
+      <div class="empty-state">
+        <p>尚無文章。</p>
+        <p class="empty-hint">在 <code>content/posts/</code> 下新建一個 <code>.md</code> 檔案即可發布。</p>
+      </div>
+    <% } %>
+  </section>
+
+  <% if (tags.length) { %>
+    <section class="section">
+      <div class="section-head">
+        <h2 class="section-title"><span class="section-num">參</span>熱門標籤</h2>
+        <a class="section-link" href="/tags">全部標籤 →</a>
+      </div>
+      <div class="tag-cloud">
+        <% tags.forEach(function (tag) { %>
+          <a class="tag-pill" href="/tag/<%= encodeURIComponent(tag.name) %>">
+            <%= tag.name %><span class="tag-pill-count"><%= tag.count %></span>
+          </a>
+        <% }); %>
+      </div>
+    </section>
+  <% } %>
+</main>
+
+<%- include('partials/footer') %>

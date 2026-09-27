@@ -1,0 +1,126 @@
+<%- include('partials/head') %>
+<%- include('partials/header') %>
+
+<main id="main" class="shell">
+  <article class="article">
+    <header class="article-head">
+      <nav class="crumbs" aria-label="麵包屑">
+        <a href="/">首頁</a>
+        <span aria-hidden="true">·</span>
+        <% if (post.category) { %>
+          <a href="/category/<%= encodeURIComponent(post.category) %>"><%= post.category %></a>
+          <span aria-hidden="true">·</span>
+        <% } %>
+        <span class="crumbs-current"><%= post.title %></span>
+      </nav>
+
+      <h1 class="article-title"><%= post.title %></h1>
+
+      <div class="ornament" aria-hidden="true"><i></i><b></b><i></i></div>
+
+      <% if (post.summary) { %><p class="article-lede"><%= post.summary %></p><% } %>
+
+      <div class="article-meta">
+        <span class="meta-item">
+          <time datetime="<%= post.date %>"><%= post.dateLabel %></time>
+        </span>
+        <span class="meta-item"><%= post.words %> 字 · 約 <%= post.minutes %> 分鐘</span>
+        <% if (post.updated) { %><span class="meta-item">修訂於 <%= post.updated %></span><% } %>
+        <% if (post.series) { %><span class="meta-item">系列「<%= post.series %>」</span><% } %>
+      </div>
+
+      <% if (post.tags.length) { %>
+        <div class="tag-row article-tags">
+          <% post.tags.forEach(function (tag) { %>
+            <a class="tag-chip" href="/tag/<%= encodeURIComponent(tag) %>"><%= tag %></a>
+          <% }); %>
+        </div>
+      <% } %>
+    </header>
+
+    <div class="article-layout">
+      <div class="article-main">
+        <div class="prose" id="articleContent">
+          <%- post.html %>
+        </div>
+
+        <footer class="article-foot">
+          <div class="colophon">
+            <span class="colophon-text">
+              <strong><%= site.title %></strong>
+              <%= post.dateLabel %> 記於硯邊
+            </span>
+            <span class="seal seal-quad" aria-hidden="true">
+              <% site.seal.forEach(function (ch) { %><span><%= ch %></span><% }); %>
+            </span>
+          </div>
+
+          <div class="share-row">
+            <span class="share-label">傳 閱</span>
+            <button class="share-btn" type="button" data-share="copy">複製連結</button>
+            <a class="share-btn" data-share="weibo" href="https://service.weibo.com/share/share.php?url=<%= encodeURIComponent(site.url + '/post/' + encodeURIComponent(post.slug)) %>&title=<%= encodeURIComponent(post.title) %>" target="_blank" rel="noopener noreferrer">微博</a>
+            <a class="share-btn" data-share="x" href="https://twitter.com/intent/tweet?url=<%= encodeURIComponent(site.url + '/post/' + encodeURIComponent(post.slug)) %>&text=<%= encodeURIComponent(post.title) %>" target="_blank" rel="noopener noreferrer">X</a>
+          </div>
+        </footer>
+
+        <nav class="post-nav" aria-label="文章導航">
+          <% if (post.newer) { %>
+            <a class="post-nav-item" href="/post/<%= encodeURIComponent(post.newer.slug) %>">
+              <span class="post-nav-label">← 後一篇</span>
+              <strong><%= post.newer.title %></strong>
+            </a>
+          <% } else { %><span class="post-nav-item is-empty"></span><% } %>
+
+          <% if (post.older) { %>
+            <a class="post-nav-item is-next" href="/post/<%= encodeURIComponent(post.older.slug) %>">
+              <span class="post-nav-label">前一篇 →</span>
+              <strong><%= post.older.title %></strong>
+            </a>
+          <% } else { %><span class="post-nav-item is-empty"></span><% } %>
+        </nav>
+
+        <% if (related.length) { %>
+          <section class="related">
+            <h2 class="related-title">相關文章</h2>
+            <div class="related-list">
+              <% related.forEach(function (item) { %>
+                <a class="related-item" href="/post/<%= encodeURIComponent(item.slug) %>">
+                  <time datetime="<%= item.date %>"><%= item.date %></time>
+                  <span><%= item.title %></span>
+                </a>
+              <% }); %>
+            </div>
+          </section>
+        <% } %>
+      </div>
+
+      <aside class="article-aside">
+        <% if (post.toc.length) { %>
+          <nav class="toc" id="toc" aria-label="文章目錄">
+            <h3 class="toc-title">目 錄</h3>
+            <ul>
+              <% post.toc.forEach(function (item) { %>
+                <li class="toc-item toc-level-<%= item.level %>">
+                  <a href="#<%= item.slug %>"><%= item.text %></a>
+                </li>
+              <% }); %>
+            </ul>
+          </nav>
+        <% } %>
+
+        <div class="aside-card">
+          <h3 class="aside-title">此 篇 小 記</h3>
+          <ul class="aside-list">
+            <li><span>成文</span><strong><%= post.date %></strong></li>
+            <li><span>字數</span><strong><%= post.words %></strong></li>
+            <li><span>時長</span><strong><%= post.minutes %> 分鐘</strong></li>
+            <li><span>歸類</span><strong><%= post.category %></strong></li>
+            <li><span>標籤</span><strong><%= post.tags.length %> 枚</strong></li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </article>
+</main>
+
+<%- include('partials/footer') %>

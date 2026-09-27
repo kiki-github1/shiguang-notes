@@ -1,0 +1,29 @@
+<%- include('partials/head') %>
+<%- include('partials/header') %>
+
+<main id="main" class="shell">
+  <div class="error-page">
+    <p class="error-code">四〇四</p>
+    <h1 class="error-title"><%= title %></h1>
+    <p class="error-desc"><%= description %></p>
+    <div class="error-actions">
+      <a class="btn-primary" href="/">回到首頁</a>
+      <a class="btn-ghost" href="/archive">閱覽歸檔</a>
+    </div>
+  </div>
+
+  <% if (suggestions && suggestions.length) { %>
+    <section class="section">
+      <div class="section-head">
+        <h2 class="section-title"><span class="section-num">另</span>不妨看看</h2>
+      </div>
+      <div class="post-list">
+        <% suggestions.forEach(function (post) { %>
+          <%- include('partials/post-card', { post: post }) %>
+        <% }); %>
+      </div>
+    </section>
+  <% } %>
+</main>
+
+<%- include('partials/footer') %>

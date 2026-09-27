@@ -1,0 +1,56 @@
+<footer class="site-footer">
+  <div class="shell footer-inner">
+    <div class="footer-brand">
+      <span class="seal seal-quad" aria-hidden="true">
+        <% site.seal.forEach(function (ch) { %><span><%= ch %></span><% }); %>
+      </span>
+      <div>
+        <strong><%= site.title %></strong>
+        <p><%= site.description %></p>
+      </div>
+    </div>
+
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>瀏覽</h4>
+        <ul>
+          <% nav.forEach(function (item) { %>
+            <li><a href="<%= item.path %>"><%= item.name %></a></li>
+          <% }); %>
+          <li><a href="/categories">分類</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>訂閱</h4>
+        <ul>
+          <% social.forEach(function (item) { %>
+            <li><a href="<%= item.url %>"<%= /^https?:/.test(item.url) ? ' target="_blank" rel="noopener noreferrer"' : '' %>><%= item.name %></a></li>
+          <% }); %>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>卷帙</h4>
+        <ul>
+          <li><span>文章 <%= stats.postCount %> 篇</span></li>
+          <li><span>標籤 <%= stats.tagCount %> 個</span></li>
+          <li><span>約 <%= Math.round(stats.totalWords / 1000) %>k 字</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="shell footer-bottom">
+    <p>© <%= stats.firstYear ? `${stats.firstYear} - ` : '' %><%= currentYear %> <%= site.author %><%= site.icp ? ` · ${site.icp}` : '' %></p>
+    <p class="footer-meta">硯邊閒記 · <a href="/rss.xml">訂閱</a></p>
+  </div>
+</footer>
+
+<button class="to-top" id="toTop" type="button" aria-label="返回頂部">
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5M5 12l7-7 7 7"></path>
+  </svg>
+</button>
+
+<script src="/js/main.js" defer></script>
+</body>
+</html>
