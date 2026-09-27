@@ -104,4 +104,10 @@ ensureDesktopShortcut();
 // server.js 在 listen 回调里读这个变量，就绪后把后台窗口弹出来
 process.env.ADMIN_APP = process.env.ADMIN_APP || '1';
 
+// ADMIN_APP_MODE=tab 改成普通标签页模式（不开 --app= 独立窗口）。
+// 兜底用：万一哪台机器上的浏览器怎么都拦不住气泡，把这一行临时启用即可。
+if (process.env.ADMIN_APP_MODE === 'tab') {
+  console.log('  · ADMIN_APP_MODE=tab 已开启，将以普通标签页模式打开后台');
+}
+
 require(path.join(ROOT, 'server.js'));

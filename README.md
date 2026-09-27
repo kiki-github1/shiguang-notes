@@ -112,7 +112,14 @@ slug: custom-url                   # 可选，覆盖从文件名推导的 URL
   `where node` 会假报错。`launch-hidden.vbs` 主动从几个标准位置（ProgramFiles / LOCALAPPDATA
   等）探测 `node.exe`，把绝对路径传给 `start-admin.bat`，绕开这个坑
 - `--app=` 模式若复用 Chrome 的默认用户目录，上一次会话没退干净时会卡在「Profile in use」
-  上，新窗口一片白板且没法关。所以每次启动用一个全新的临时目录作为 Chrome profile
+  上，新窗口一片白板且没法关。所以每次启动用一个全新的临时目录作为 profile，并用
+  `prepareProfile()` 预置 `First Run` 标记与 `Preferences`，避免被当成「第一次安装」
+  而弹出欢迎页 / 同步引导 / 默认浏览器询问等气泡
+- 浏览器优先用 Edge 而不是 Chrome：Edge 没有面向真人的「设为默认浏览器 / 登录同步 /
+  新版功能」那套推广，任务栏上的图标与 Chrome 不一样，一眼能认出「这是我的写作后台」。
+  两者都是 Chromium 内核，`--app=` 表现一致
+- 如果哪台机器上的浏览器怎么都拦不住气泡，可以设环境变量 `ADMIN_APP_MODE=tab`
+  退回普通标签页模式（在 `tools/launch.js` 里临时把这一行启用即可）
 
 ### 首页展示规则
 
