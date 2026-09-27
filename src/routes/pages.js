@@ -180,4 +180,27 @@ ${urls
 </urlset>`);
 });
 
+/* ---------------------------- robots.txt ---------------------------- */
+/*
+ * 用路由而不是 `public/robots.txt`：Sitemap 行要带上站点真实域名，
+ * 而域名来自 config（线上由 SITE_URL 注入），写死在静态文件里会随环境错位。
+ *
+ * `Disallow: /admin` 是纵深防御 —— 生产环境本来就不挂载该路由（404），
+ * 这里再挡一道，免得将来有人改了挂载判断却忘了同步这里。
+ */
+router.get('/robots.txt', (req, res) => {
+  const site = config.site;
+  res.type('text/plain').send(
+    [
+      'User-agent: *',
+      'Allow: /',
+      'Disallow: /admin',
+      'Disallow: /admin/',
+      '',
+      `Sitemap: ${site.url}/sitemap.xml`,
+      '',
+    ].join('\n')
+  );
+});
+
 module.exports = router;
