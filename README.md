@@ -257,7 +257,8 @@ GET /api/stats                站点统计
 │   └── app/icon.ico         Windows 快捷方式图标（由 tools/make-icons.js 生成）
 ├── tools/
 │   ├── security-check.js    安全自检脚本（敏感文件 / 穿越 / XSS / 限流 / 响应头）
-│   └── make-icons.js        从 favicon.svg 生成多尺寸 .ico
+│   ├── make-icons.js        从 favicon.svg 生成多尺寸 .ico
+│   └── launch.js            双击启动的入口（建桌面图标 + 起服务）
 └── start-admin.bat          双击启动本地后台（并弹出应用窗口）
 ```
 

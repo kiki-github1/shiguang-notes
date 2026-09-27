@@ -3,6 +3,13 @@
 # 「整个文件都被改动」的伪 diff，review 时几乎不可读。
 * text=auto eol=lf
 
+# Windows 批处理必须是 CRLF。
+# cmd 解析 LF 行尾的 .bat 时，多行结构（if 块、for、goto 标签）会错乱，
+# 表现为「双击没反应」或「命令只执行一半」——而且报错极不直观。
+# 这条必须放在上面那条通配规则之后，gitattributes 是后面的覆盖前面的。
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+
 # 二进制文件不做换行转换，否则会被损坏
 *.png  binary
 *.jpg  binary
