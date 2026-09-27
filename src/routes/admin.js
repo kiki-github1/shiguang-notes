@@ -24,6 +24,17 @@ const ROOT = path.resolve(__dirname, '..', '..');
 const UPLOAD_DIR = path.join(ROOT, 'public', 'images', 'uploads');
 const UPLOAD_URL_PREFIX = '/images/uploads';
 
+/* ------------------------------ 后台静态资源 ------------------------------ */
+/*
+ * 刻意**不**放进 public/：那样 express.static 在生产环境照样会把文件发出去，
+ * 等于对外宣告「这里有个后台」。放在项目根的 assets/ 下由本路由托管，
+ * 生产环境本路由不挂载，资源自然也访问不到。
+ */
+router.use(
+  '/assets',
+  express.static(path.join(ROOT, 'assets', 'admin'), { index: false, maxAge: '1h' })
+);
+
 /* -------------------------------- 图片上传 -------------------------------- */
 
 const ALLOWED_EXT = new Set(['.png', '.jpg', '.jpeg', '.gif', '.webp', '.avif', '.svg']);
@@ -68,6 +79,31 @@ function git(args, { timeout = 60000 } = {}) {
       return resolve({ stdout: String(stdout || ''), stderr: String(stderr || '') });
     });
   });
+}
+
+/**
+ * 把 git 的原始报错翻译成能直接照做的提示。
+ * git 的错误信息对不熟悉命令行的人几乎没有可操作性，这里补一层人话。
+ */
+function explainGitError(err) {
+  const raw = `${err.stderr || ''} ${err.message || ''}`;
+
+  if (/Host key verification failed|known_hosts/i.test(raw)) {
+    return 'SSH 主机校验没通过。在终端里手动执行一次 git push 完成校验，之后就能正常发布了。';
+  }
+  if (/Permission denied \(publickey\)/i.test(raw)) {
+    return 'SSH 密钥未被 GitHub 接受。检查 ~/.ssh/config 里的 IdentityFile 是否指向已添加到 GitHub 账号的那把密钥。';
+  }
+  if (/Could not resolve host|Connection timed out|Network is unreachable|Failed to connect/i.test(raw)) {
+    return '连不上 GitHub。检查网络或代理设置。';
+  }
+  if (/non-fast-forward|\[rejected\]|fetch first/i.test(raw)) {
+    return '远端有本地没有的提交，推送被拒。在终端执行 git pull --rebase 后再试。';
+  }
+  if (/not a git repository/i.test(raw)) {
+    return '当前目录不是 git 仓库。';
+  }
+  return '';
 }
 
 /* --------------------------------- 页面 --------------------------------- */
@@ -264,7 +300,8 @@ router.post('/api/publish', async (req, res) => {
   } catch (err) {
     return res.status(500).json({
       ok: false,
-      message: err.stderr || err.message || '发布失败',
+      message: (err.stderr || err.message || '发布失败').trim(),
+      hint: explainGitError(err),
       steps,
     });
   }

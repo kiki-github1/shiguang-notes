@@ -41,7 +41,8 @@ async function runPublish(message) {
   if (data.reason === 'NOTHING_TO_COMMIT') {
     return { ok: true, text: '内容没有变化，无需发布' };
   }
-  return { ok: false, text: data.message || '发布失败' };
+  // 服务端会把 git 的原始报错翻译成人话放在 hint 里，优先用它
+  return { ok: false, text: data.hint || data.message || '发布失败' };
 }
 
 /* -------------------------------- 列表页 -------------------------------- */

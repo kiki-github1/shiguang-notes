@@ -338,6 +338,21 @@ body.admin {
 .pane-body h2,
 .pane-body h3,
 .pane-body h4 { margin: 1.3em 0 0.6em; line-height: 1.35; }
+
+/* 标题锚点平时隐藏、悬停才显形 —— 否则预览里每个标题后面都跟着一个 # */
+.pane-body .heading-anchor {
+  margin-left: 0.35em;
+  font-size: 0.68em;
+  font-weight: 400;
+  color: var(--muted);
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.pane-body h1:hover .heading-anchor,
+.pane-body h2:hover .heading-anchor,
+.pane-body h3:hover .heading-anchor,
+.pane-body h4:hover .heading-anchor { opacity: 1; }
 .pane-body h1 { font-size: 1.6em; }
 .pane-body h2 {
   font-size: 1.3em;

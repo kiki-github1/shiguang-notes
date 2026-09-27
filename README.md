@@ -66,6 +66,34 @@ slug: custom-url                   # 可选，覆盖从文件名推导的 URL
 支持标题、列表、任务列表、表格、引用、脚注、代码块（自动高亮）、图片、内联 HTML 等。
 正文中的 `##` 和 `###` 标题会自动生成右侧目录。
 
+## 后台管理（本地）
+
+不想每次都手动建文件、敲 git 命令，可以开图形化后台：
+
+```bash
+npm run dev        # 或 npm start
+# 浏览器打开 http://127.0.0.1:3000/admin
+```
+
+界面提供：
+
+- **文章列表** —— 所有文章（含草稿，带「草稿」标记），显示日期、分类、标签、字数
+- **Markdown 编辑器** —— 左侧写、右侧实时预览。预览走服务端**同一套 markdown-it 配置**渲染，所以所见即所得
+- **图片上传** —— 拖拽或点击选择，自动存到 `public/images/uploads/` 并插入 Markdown 链接
+- **一键发布** —— 自动执行 `git add / commit / push`，GitHub 收到后 Render 自动重新部署
+
+快捷键：`Ctrl/Cmd + S` 保存，`Ctrl/Cmd + Shift + S` 保存并发布。
+
+### ⚠️ 后台只在本地存在，这是刻意设计
+
+`/admin` 路由**只在 `NODE_ENV !== 'production'` 时挂载**（见 `server.js` 的路由段）。线上部署的站点访问 `/admin` 一律 404，连后台的 CSS/JS 也一样取不到。
+
+**用部署环境做隔离，替代自研一套登录认证** —— 少一整套攻击面（弱口令、会话固定、CSRF…）。因此：
+
+- 不要为了「随时随地能写」而把它改成无条件挂载
+- 真需要线上编辑，正确做法是**通过 GitHub API 提交**（内容进仓库，不依赖服务器文件系统），而不是让服务器直接写文件 —— Render 的文件系统是临时的，重启即丢
+- 后台静态资源刻意放在 `assets/admin/`（不在 `public/`），由 admin 路由托管，这样生产环境同样访问不到
+
 ## 关于页面
 
 编辑 `content/pages/about.md`，同样支持 frontmatter 和完整 Markdown。
@@ -178,9 +206,11 @@ GET /api/stats                站点统计
 │   │   └── utils.js         日期、摘要、字数、分页等工具
 │   └── routes/
 │       ├── pages.js         页面路由
-│       └── api.js           JSON API
+│       ├── api.js           JSON API
+│       └── admin.js         后台管理（仅非生产环境挂载）
 ├── views/                   EJS 模板
 │   ├── partials/            head / header / footer / 卡片 / 分页
+│   ├── admin/               后台界面模板
 │   └── *.ejs                各页面模板
 ├── content/
 │   ├── posts/               文章（Markdown）
@@ -190,7 +220,10 @@ GET /api/stats                站点统计
 │   ├── js/                  主题初始化与交互脚本
 │   └── images/
 │       ├── art/             山水长卷底纹稿（landscape.svg，纯黑透明稿 + CSS mask 上色）
+│       ├── uploads/         后台上传的图片（运行时生成）
 │       └── *.svg            文章插图
+├── assets/
+│   └── admin/               后台的 CSS/JS（刻意放在 public 之外，生产环境不可达）
 ├── tools/
 │   └── security-check.js    安全自检脚本（敏感文件 / 穿越 / XSS / 限流 / 响应头）
 ```
