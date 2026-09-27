@@ -3,16 +3,29 @@
 /**
  * 安全自检脚本。
  *
- * 用原生 http 模块手工拼请求路径 —— 关键点：绝不用 fetch/axios 之类的客户端，
+ * 用原生 http/https 模块手工拼请求路径 —— 关键点：绝不用 fetch/axios 之类的客户端，
  * 因为它们会把 `..%2f..%2f` 这类编码规范化掉，导致穿越测试根本打不到服务端。
  *
  * 用法：node tools/security-check.js [baseUrl]
+ *   node tools/security-check.js                                  # 本地 http://127.0.0.1:3000
+ *   EXPECT_HSTS=1 node tools/security-check.js https://example.com
  */
 
 const http = require('http');
+const https = require('https');
 const { URL } = require('url');
 
 const BASE = new URL(process.argv[2] || 'http://127.0.0.1:3000');
+
+/*
+ * 按 baseUrl 的协议选择传输层。
+ *
+ * 必须区分 http / https：若拿 http 模块去请求 https 站点，请求会以明文发出，
+ * 被反向代理（Cloudflare / Nginx）301 重定向到 https，于是所有断言读到的
+ * 都是那个重定向响应 —— 安全头「全部缺失」、限流「未生效」、状态码清一色 301，
+ * 全是假警报。本脚本最初就踩过这个坑。
+ */
+const transport = BASE.protocol === 'https:' ? https : http;
 
 let pass = 0;
 let warn = 0;
@@ -29,10 +42,12 @@ const c = {
 /** 原始请求：path 原样下发，不做任何规范化 */
 function request(method, rawPath, { headers = {}, body = null, timeout = 8000 } = {}) {
   return new Promise((resolve) => {
-    const req = http.request(
+    const req = transport.request(
       {
         host: BASE.hostname,
-        port: BASE.port,
+        // URL 未显式写端口时 BASE.port 是空串，传 undefined 让模块用默认端口
+        // （http 80 / https 443）
+        port: BASE.port || undefined,
         method,
         path: rawPath,
         headers,
@@ -81,6 +96,16 @@ function section(name) {
 
 (async () => {
   console.log(c.bold(`\n安全自检 → ${BASE.origin}\n${'─'.repeat(52)}`));
+
+  /* ─────────────── 0. 协议自检 ─────────────── */
+  // 若首个请求就被 3xx 重定向，说明 baseUrl 的协议写错了（或站点强制跳转）。
+  // 此时后续断言全部基于重定向响应得出结论，会产出一堆假警报，必须先拦下来。
+  const probe = await request('GET', '/');
+  if (probe.status >= 300 && probe.status < 400 && probe.headers.location) {
+    console.log(c.yellow(`  ! 收到 ${probe.status} 重定向 → ${probe.headers.location}`));
+    console.log(c.yellow(`    当前 baseUrl 协议为 ${BASE.protocol}，后续结果不可信。`));
+    console.log(c.yellow('    请改用跳转目标的协议重跑。\n'));
+  }
 
   /* ─────────────── 1. 敏感文件是否可被直接下载 ─────────────── */
   section('1. 敏感文件暴露');
