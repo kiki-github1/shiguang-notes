@@ -16,8 +16,10 @@ const { execFile } = require('child_process');
 const express = require('express');
 const multer = require('multer');
 
+const config = require('../config');
 const content = require('../lib/content');
 const { render } = require('../lib/markdown');
+const { openInBrowser } = require('../lib/open-app');
 
 const router = express.Router();
 const ROOT = path.resolve(__dirname, '..', '..');
@@ -261,6 +263,21 @@ router.post('/api/template', (req, res) => {
     return res.status(404).json({ ok: false, message: '模板不存在' });
   }
   return res.json({ ok: true, template });
+});
+
+/**
+ * 在系统默认浏览器里打开站点前台。
+ *
+ * 后台平时是以 `--app=` 模式跑的，那个窗口没有地址栏也没有标签页，
+ * 直接点站内链接会把后台页面顶掉，用户还得按后退才能回来。
+ * 绕一圈交给外部浏览器，后台窗口原地不动。
+ *
+ * 注意 url 由服务端自己拼，不接受任何客户端输入 —— 这层没有注入面。
+ */
+router.post('/api/open-site', (req, res) => {
+  const url = `http://127.0.0.1:${config.server.port}/`;
+  openInBrowser(url);
+  res.json({ ok: true, url });
 });
 
 /** 删除文章 */

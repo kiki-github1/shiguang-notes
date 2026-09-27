@@ -1,0 +1,37 @@
+<%
+  /*
+   * 后台的线性图标集。
+   *
+   * 内联 SVG 是静态标记，不是脚本，因此不受 CSP 的 `script-src 'self'` 影响，
+   * 不需要额外开 nonce 或白名单。
+   *
+   * 统一 24×24 视图框、`stroke="currentColor"`、只描边不填充 ——
+   * 于是按钮的文字颜色一变（比如 hover 或 danger 态），图标自动跟着变，
+   * 不用为每个按钮单独配色。
+   */
+  const icons = {
+    // 返回：左向折角箭头
+    back: '<path d="M14.5 18.5L8 12l6.5-6.5"/>',
+    // 预览：眼睛
+    eye: '<path d="M2.6 12S6.2 6.6 12 6.6 21.4 12 21.4 12 17.8 17.4 12 17.4 2.6 12 2.6 12z"/>'
+       + '<circle cx="12" cy="12" r="2.6"/>',
+    // 保存：对勾
+    check: '<path d="M4.8 12.4l4.9 4.9L19.4 6.8"/>',
+    // 发布：向上出匣
+    upload: '<path d="M12 16.4V4.2"/><path d="M6.6 9.6L12 4.2l5.4 5.4"/><path d="M4.2 19.8h15.6"/>',
+    // 新建：加号
+    plus: '<path d="M12 5.4v13.2M5.4 12h13.2"/>',
+    // 编辑：铅笔
+    pencil: '<path d="M4 20h4L20 8l-4-4L4 16v4z"/>',
+    // 删除：垃圾桶
+    trash: '<path d="M4 7h16"/><path d="M9.6 7V4.6h4.8V7"/><path d="M6.6 7l1 12.4h8.8L17.4 7"/>',
+    // 外链：跳出到浏览器
+    external: '<path d="M14 4.2h5.8V10"/><path d="M19.8 4.2L11 13"/>'
+            + '<path d="M18 14.4v4.4a1.2 1.2 0 0 1-1.2 1.2H5.4a1.2 1.2 0 0 1-1.2-1.2V7.4a1.2 1.2 0 0 1 1.2-1.2h4.4"/>',
+    // 品牌印章：外框 + 内框
+    seal: '<rect x="3.2" y="3.2" width="17.6" height="17.6" rx="2.4"/>'
+        + '<rect x="7" y="7" width="10" height="10" rx="1"/>'
+  };
+%>
+<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><%- icons[name] || '' %></svg>

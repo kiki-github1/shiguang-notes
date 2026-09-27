@@ -89,6 +89,20 @@ function initList() {
     });
   }
 
+  /*
+   * 「预览站点」交给服务端唤起系统默认浏览器。
+   * 后台自身跑在应用窗口（--app=）里，没有标签页 —— 直接跳过去会把后台顶掉。
+   */
+  const viewSiteBtn = document.getElementById('btn-view-site');
+  if (viewSiteBtn) {
+    viewSiteBtn.addEventListener('click', async () => {
+      const { data } = await postJSON('/admin/api/open-site', {});
+      if (!data.ok) {
+        toast(`没能唤起浏览器，请手动访问 ${window.location.origin}`, 'error');
+      }
+    });
+  }
+
   document.querySelectorAll('[data-delete]').forEach((btn) => {
     btn.addEventListener('click', async () => {
       const { delete: slug, title } = btn.dataset;

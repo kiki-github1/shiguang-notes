@@ -19,8 +19,13 @@
   <meta property="og:url" content="<%= site.url %><%= currentPath %>">
   <meta name="twitter:card" content="summary_large_image">
 
-  <%# 站点图标：朱砂单字印 %>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='3' fill='%23a32e26'/><rect x='3' y='3' width='26' height='26' rx='1.5' fill='none' stroke='%23fbf7ef' stroke-width='1.6' opacity='.55'/><text x='16' y='23.5' font-size='19' text-anchor='middle' fill='%23fbf7ef' font-family='Songti SC,SimSun,serif'>%E6%8B%BE</text></svg>">
+  <%#
+    站点图标：朱砂单字印。
+    原先内联成 data URI，现在抽成 public/favicon.svg 文件 ——
+    后台要用同一枚图标，而 tools/make-icons.js 还要拿它生成 Windows 快捷方式
+    用的 .ico，一处定义三处复用，改图标不必再满仓库找那段转义过的 SVG。
+  %>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/highlight.css">

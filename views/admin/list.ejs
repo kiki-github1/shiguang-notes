@@ -5,19 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><%= pageTitle %> · 拾光筆記後台</title>
   <link rel="stylesheet" href="/admin/assets/admin.css">
-  <link rel="icon" href="data:,">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
 <body class="admin">
   <header class="admin-bar">
     <div class="admin-bar__left">
-      <span class="admin-brand">拾光筆記 · 後台</span>
+      <span class="admin-brand"><%- include('partials/icon', { name: 'seal' }) %>拾光筆記 · 後台</span>
       <span class="admin-hint">仅本地可用，线上不暴露</span>
     </div>
     <div class="admin-bar__right">
       <span class="admin-git" id="git-status">检查仓库状态…</span>
-      <a class="btn btn--ghost" href="/" target="_blank" rel="noopener">预览站点</a>
-      <button type="button" class="btn btn--gold" id="btn-publish-all">发布到线上</button>
-      <a class="btn btn--primary" href="/admin/new">写新文章</a>
+      <%# 用按钮而非链接：应用窗口没有标签页，站内跳转会把后台顶掉，
+          所以交给服务端用系统默认浏览器打开 %>
+      <button type="button" class="btn btn--ghost" id="btn-view-site"><%- include('partials/icon', { name: 'external' }) %>预览站点</button>
+      <button type="button" class="btn btn--gold" id="btn-publish-all"><%- include('partials/icon', { name: 'upload' }) %>发布到线上</button>
+      <a class="btn btn--primary" href="/admin/new"><%- include('partials/icon', { name: 'plus' }) %>写新文章</a>
     </div>
   </header>
 
@@ -53,10 +55,10 @@
           <td class="dim"><%= post.tags.join(' · ') %></td>
           <td class="dim num"><%= post.words %></td>
           <td class="col-actions">
-            <a class="btn btn--tiny" href="/admin/edit/<%= post.slug %>">编辑</a>
+            <a class="btn btn--tiny" href="/admin/edit/<%= post.slug %>"><%- include('partials/icon', { name: 'pencil' }) %>编辑</a>
             <button type="button" class="btn btn--tiny btn--danger"
                     data-delete="<%= post.slug %>"
-                    data-title="<%= post.title %>">删除</button>
+                    data-title="<%= post.title %>"><%- include('partials/icon', { name: 'trash' }) %>删除</button>
           </td>
         </tr>
         <% }); %>

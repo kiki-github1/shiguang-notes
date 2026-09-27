@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!--
+    站点图标：朱砂方印 + 「拾」字，与页面里的印章视觉同源。
+    用 SVG 而不是位图：一份文件从 16px 的标签页缩放到 256px 的应用图标都清晰。
+  -->
+  <rect width="256" height="256" rx="24" fill="#a32e26"/>
+  <rect x="24" y="24" width="208" height="208" rx="12"
+        fill="none" stroke="#fbf7ef" stroke-width="12.8" opacity=".5"/>
+  <text x="128" y="188" font-size="152" text-anchor="middle"
+        fill="#fbf7ef" font-family="Songti SC, SimSun, serif">拾</text>
+</svg>

@@ -21,6 +21,7 @@ const rateLimit = require('express-rate-limit');
 
 const config = require('./src/config');
 const content = require('./src/lib/content');
+const { openAsApp } = require('./src/lib/open-app');
 const pagesRouter = require('./src/routes/pages');
 const apiRouter = require('./src/routes/api');
 const adminRouter = require('./src/routes/admin');
@@ -256,6 +257,35 @@ const server = app.listen(port, host, () => {
       '     在托管平台的「环境变量」里加一条 SITE_URL=https://你的域名 即可。\n'
     );
   }
+
+  /*
+   * ADMIN_APP=1 由 start-admin.bat 设置，表示「这是双击图标启动的后台」。
+   *
+   * 开窗口这件事必须放在这里 —— 服务真正 listen 成功之后。
+   * 不能在 bat 里写成「启动服务 → 等两秒 → 打开浏览器」：首次启动要加载
+   * 依赖、构建内容索引，两秒往往不够，用户会先撞上一张「无法访问」的白页。
+   */
+  if (process.env.ADMIN_APP === '1') {
+    const url = `http://127.0.0.1:${port}/admin`;
+    const { mode } = openAsApp(url);
+    console.log(
+      mode === 'app'
+        ? `  ✓ 已用应用窗口打开后台： ${url}\n`
+        : `  ✓ 已用默认浏览器打开后台： ${url}\n` +
+          '     （想让它以独立窗口打开、更像桌面应用？装一个 Chrome 或 Edge 即可）\n'
+    );
+  }
+});
+
+/* 端口被占用是双击启动时最常见的失败，单独给一句人话，别甩一堆堆栈 */
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`\n  ✗ 端口 ${port} 已被占用，后台可能已经在运行了。`);
+    console.error('    先找找有没有已经打开的后台窗口，或者关掉那个还留着的');
+    console.error('    「拾光笔记 · 本地后台」命令行窗口，再双击图标重试。\n');
+    process.exit(1);
+  }
+  throw err;
 });
 
 // 连接层加固：缩短头部/请求超时，压制 Slowloris 这类慢速耗尽攻击

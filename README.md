@@ -68,21 +68,48 @@ slug: custom-url                   # 可选，覆盖从文件名推导的 URL
 
 ## 后台管理（本地）
 
-不想每次都手动建文件、敲 git 命令，可以开图形化后台：
+不想每次都手动建文件、敲 git 命令，可以开图形化后台。
 
-```bash
-npm run dev        # 或 npm start
-# 浏览器打开 http://127.0.0.1:3000/admin
-```
+**双击 `start-admin.bat` 即可**（首次运行会顺手在桌面创建一个带图标的快捷方式，
+以后直接双击桌面上的「拾光笔记 写作后台」）。服务就绪后会自动弹出一个
+**独立应用窗口**，没有地址栏和标签页 —— 观感与桌面应用一致，靠的是
+Chrome / Edge 的 `--app=` 模式，不需要引入 Electron。
+
+关掉那个命令行窗口就是退出后台。
+
+> 手动跑也行：`npm run dev`，然后浏览器打开 `http://127.0.0.1:3000/admin`。
+> 但这样开出来的是普通标签页，少了「应用窗口」那层体验。
 
 界面提供：
 
 - **文章列表** —— 所有文章（含草稿，带「草稿」标记），显示日期、分类、标签、字数
 - **Markdown 编辑器** —— 左侧写、右侧实时预览。预览走服务端**同一套 markdown-it 配置**渲染，所以所见即所得
+- **写作模板** —— 从 `content/templates/` 下拉套用，自动填正文骨架与分类标签。
+  想加自己的模板，往那个目录丢一个 `.md` 即可，不用改代码
+- **展示开关** —— 草稿 / 置顶 / 精选三个勾选项，分别对应 frontmatter 的 `draft` / `pinned` / `featured`
 - **图片上传** —— 拖拽或点击选择，自动存到 `public/images/uploads/` 并插入 Markdown 链接
 - **一键发布** —— 自动执行 `git add / commit / push`，GitHub 收到后 Render 自动重新部署
 
 快捷键：`Ctrl/Cmd + S` 保存，`Ctrl/Cmd + Shift + S` 保存并发布。
+
+### 首页展示规则
+
+- **「精選」区** —— 勾了「精選」的文章优先，不足 3 篇时用日期最新的文章补足。
+  补位的卡片边框会退后一档，与手动挑过的区分开
+- **「最新文章」列表** —— 勾了「置顶」的永远排最前（带「置頂」标记），其余按日期倒序
+- 首页「最近更新」取的是**真正的最新日期**，不受置顶影响
+
+### 应用图标
+
+站点图标是 `public/favicon.svg`（朱砂方印 + 「拾」字），前台、后台共用一份。
+Windows 快捷方式用的 `assets/app/icon.ico` 由它生成：
+
+```bash
+NODE_PATH="<隔离工作区>/node_modules" node tools/make-icons.js
+```
+
+该脚本借系统 Chrome 把 SVG 渲染成 16/32/48/64/128/256 六种尺寸再打包成 ICO ——
+多尺寸是必要的，只嵌一张的话系统会拉伸去凑其余尺寸，笔画会糊。
 
 ### ⚠️ 后台只在本地存在，这是刻意设计
 
@@ -203,6 +230,7 @@ GET /api/stats                站点统计
 │   ├── lib/
 │   │   ├── content.js       内容仓库：扫描、解析、索引、缓存、查询
 │   │   ├── markdown.js      Markdown 渲染：高亮、锚点、目录提取
+│   │   ├── open-app.js      以应用窗口打开后台 / 交给系统浏览器打开链接
 │   │   └── utils.js         日期、摘要、字数、分页等工具
 │   └── routes/
 │       ├── pages.js         页面路由
@@ -210,22 +238,27 @@ GET /api/stats                站点统计
 │       └── admin.js         后台管理（仅非生产环境挂载）
 ├── views/                   EJS 模板
 │   ├── partials/            head / header / footer / 卡片 / 分页
-│   ├── admin/               后台界面模板
+│   ├── admin/               后台界面模板（partials/icon.ejs 为图标集）
 │   └── *.ejs                各页面模板
 ├── content/
 │   ├── posts/               文章（Markdown）
-│   └── pages/               独立页面（如 about.md）
+│   ├── pages/               独立页面（如 about.md）
+│   └── templates/           写作模板（不参与文章索引）
 ├── public/
 │   ├── css/                 样式系统与代码高亮主题
 │   ├── js/                  主题初始化与交互脚本
+│   ├── favicon.svg          站点图标（前台与后台共用）
 │   └── images/
 │       ├── art/             山水长卷底纹稿（landscape.svg，纯黑透明稿 + CSS mask 上色）
 │       ├── uploads/         后台上传的图片（运行时生成）
 │       └── *.svg            文章插图
 ├── assets/
-│   └── admin/               后台的 CSS/JS（刻意放在 public 之外，生产环境不可达）
+│   ├── admin/               后台的 CSS/JS（刻意放在 public 之外，生产环境不可达）
+│   └── app/icon.ico         Windows 快捷方式图标（由 tools/make-icons.js 生成）
 ├── tools/
-│   └── security-check.js    安全自检脚本（敏感文件 / 穿越 / XSS / 限流 / 响应头）
+│   ├── security-check.js    安全自检脚本（敏感文件 / 穿越 / XSS / 限流 / 响应头）
+│   └── make-icons.js        从 favicon.svg 生成多尺寸 .ico
+└── start-admin.bat          双击启动本地后台（并弹出应用窗口）
 ```
 
 ## 扩展方向

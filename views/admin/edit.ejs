@@ -5,19 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><%= pageTitle %> · 拾光筆記後台</title>
   <link rel="stylesheet" href="/admin/assets/admin.css">
-  <link rel="icon" href="data:,">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
 <body class="admin admin--editor">
   <header class="admin-bar">
     <div class="admin-bar__left">
-      <a class="btn btn--ghost" href="/admin">← 返回列表</a>
+      <a class="btn btn--ghost" href="/admin"><%- include('partials/icon', { name: 'back' }) %>返回列表</a>
       <span class="admin-title"><%= pageTitle %></span>
     </div>
     <div class="admin-bar__right">
       <span class="admin-git" id="save-state">未保存</span>
-      <button type="button" class="btn btn--ghost" id="btn-preview">预览</button>
-      <button type="button" class="btn btn--primary" id="btn-save">保存</button>
-      <button type="button" class="btn btn--gold" id="btn-publish">保存并发布</button>
+      <button type="button" class="btn btn--ghost" id="btn-preview"><%- include('partials/icon', { name: 'eye' }) %>预览</button>
+      <button type="button" class="btn btn--primary" id="btn-save"><%- include('partials/icon', { name: 'check' }) %>保存</button>
+      <button type="button" class="btn btn--gold" id="btn-publish"><%- include('partials/icon', { name: 'upload' }) %>保存并发布</button>
     </div>
   </header>
 

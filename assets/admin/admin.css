@@ -56,9 +56,14 @@ body.admin {
 }
 
 .admin-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   font-weight: 600;
   letter-spacing: 0.04em;
 }
+/* 顶栏那枚小印章是整条工具栏里唯一的彩色点，用来锚定品牌 */
+.admin-brand .ico { width: 17px; height: 17px; color: var(--accent); }
 
 .admin-hint,
 .admin-title {
@@ -123,6 +128,18 @@ body.admin {
 .btn--tiny { padding: 3px 9px; font-size: 12px; }
 .btn--danger { color: var(--accent); border-color: #d9b3ae; }
 .btn--danger:hover { background: #f7e6e3; }
+
+/*
+ * 按钮图标：固定尺寸、不参与伸缩。
+ * 颜色不在这里指定 —— SVG 用的是 stroke="currentColor"，
+ * 跟着按钮文字走，hover / danger 态都不必单独配。
+ */
+.ico {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+.btn--tiny .ico { width: 13px; height: 13px; }
 
 /* --------------------------------- 主区 --------------------------------- */
 
