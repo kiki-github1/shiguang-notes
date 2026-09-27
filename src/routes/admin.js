@@ -91,15 +91,26 @@ function git(args, { timeout = 60000 } = {}) {
 /**
  * 把 git 的原始报错翻译成能直接照做的提示。
  * git 的错误信息对不熟悉命令行的人几乎没有可操作性，这里补一层人话。
+ *
+ * ⚠️ 判断顺序有讲究：ssh 的报错经常同时命中多个模式。
+ * 例如 known_hosts 读不了时，stderr 里既有 `hostkeys_foreach failed`
+ * 也有 `Host key verification failed` —— 必须先判具体的那一个，
+ * 否则会给出「执行一次 git push 完成校验」这种完全无效的建议。
  */
 function explainGitError(err) {
   const raw = `${err.stderr || ''} ${err.message || ''}`;
 
-  if (/Host key verification failed|known_hosts/i.test(raw)) {
-    return 'SSH 主机校验没通过。在终端里手动执行一次 git push 完成校验，之后就能正常发布了。';
-  }
+  // 先判密钥被拒：这条也含 "Permission denied"，必须排在权限判断之前
   if (/Permission denied \(publickey\)/i.test(raw)) {
     return 'SSH 密钥未被 GitHub 接受。检查 ~/.ssh/config 里的 IdentityFile 是否指向已添加到 GitHub 账号的那把密钥。';
+  }
+  // known_hosts 读不了（权限/属主不对）—— 不是「指纹缺失」，重跑 push 没用
+  if (/hostkeys_foreach failed|known_hosts.*(Permission denied|denied)/i.test(raw)) {
+    return 'ssh 读不到 ~/.ssh/known_hosts（文件权限或属主不对）。在 Git Bash 里执行 chmod 600 ~/.ssh/known_hosts 后重试。';
+  }
+  // 指纹确实不在 known_hosts 里：手动推一次、回答 yes 即可
+  if (/Host key verification failed|known_hosts/i.test(raw)) {
+    return 'SSH 主机校验没通过。在终端里手动执行一次 git push 完成校验，之后就能正常发布了。';
   }
   if (/Could not resolve host|Connection timed out|Network is unreachable|Failed to connect/i.test(raw)) {
     return '连不上 GitHub。检查网络或代理设置。';
