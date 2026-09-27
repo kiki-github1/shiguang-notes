@@ -60,10 +60,34 @@
         <textarea id="f-summary" rows="3"><%= post.summary %></textarea>
       </label>
 
-      <label class="field-check">
-        <input type="checkbox" id="f-draft" <%= post.draft ? 'checked' : '' %>>
-        <span>存为草稿（线上不显示）</span>
-      </label>
+      <% if (templates && templates.length) { %>
+        <label class="field">
+          <span>模板<em>（选中后填入正文骨架）</em></span>
+          <select id="f-template">
+            <option value="">不使用模板</option>
+            <% templates.forEach(function (t) { %>
+              <option value="<%= t.name %>"><%= t.label %><% if (t.description) { %> · <%= t.description %><% } %></option>
+            <% }); %>
+          </select>
+        </label>
+      <% } %>
+
+      <div class="field-checks">
+        <label class="field-check">
+          <input type="checkbox" id="f-draft" <%= post.draft ? 'checked' : '' %>>
+          <span>存为草稿<em>（线上不显示）</em></span>
+        </label>
+
+        <label class="field-check">
+          <input type="checkbox" id="f-pinned" <%= post.pinned ? 'checked' : '' %>>
+          <span>置顶<em>（永远排在列表最前）</em></span>
+        </label>
+
+        <label class="field-check">
+          <input type="checkbox" id="f-featured" <%= post.featured ? 'checked' : '' %>>
+          <span>精选<em>（出现在首页顶部）</em></span>
+        </label>
+      </div>
 
       <div class="drop-zone" id="drop-zone" tabindex="0">
         <strong>拖拽图片到这里</strong>

@@ -612,6 +612,16 @@ html[data-theme="dark"] .icon-moon { display: block; }
   line-height: 1.5;
 }
 
+/*
+ * 补位卡片：没有手动勾选「精選」，只是为了把这一行填满而取的最新文章。
+ * 只在边框上退后一档 —— 保留双框会让人误以为它和真精选同等重要，
+ * 但字号与文字颜色一律不动，免得整块显得灰败。
+ */
+.feature-card.is-filler {
+  border-color: color-mix(in srgb, var(--border) 65%, transparent);
+}
+.feature-card.is-filler::before { opacity: 0.45; }
+
 .feature-meta {
   display: flex;
   align-items: center;

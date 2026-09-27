@@ -28,11 +28,13 @@
       </div>
 
       <div class="feature-grid">
+        <%# is-filler：这一篇不是手动勾选的「精選」，只是用来把这一行填满的最新文章 %>
         <% highlight.forEach(function (post, index) { %>
-          <a class="feature-card<%= index === 0 ? ' is-lead' : '' %>" href="/post/<%= encodeURIComponent(post.slug) %>">
+          <a class="feature-card<%= index === 0 ? ' is-lead' : '' %><%= post.featured ? '' : ' is-filler' %>" href="/post/<%= encodeURIComponent(post.slug) %>">
             <div class="feature-meta">
               <time datetime="<%= post.date %>"><%= post.date %></time>
               <% if (post.category) { %><span class="feature-cat"><%= post.category %></span><% } %>
+              <% if (post.pinned) { %><span class="badge badge-pin">置頂</span><% } %>
             </div>
             <h3><%= post.title %></h3>
             <p><%= post.summary %></p>

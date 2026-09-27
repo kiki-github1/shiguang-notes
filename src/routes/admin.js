@@ -160,9 +160,19 @@ router.get('/new', (req, res) => {
       category: '',
       summary: '',
       cover: '',
-      draft: true,
+      /*
+       * 默认**不勾**草稿。
+       * 这里原先默认 true，结果是个陷阱：按钮写着「保存并发布」，存下去的却是草稿，
+       * 本地因为 showDrafts 为真照样能看见，线上却被 readPost 整篇过滤掉 ——
+       * 表现就是「我明明发布了，线上却没有」，且毫无提示。
+       * 默认值与按钮语义一致，才符合直觉。
+       */
+      draft: false,
+      pinned: false,
+      featured: false,
       content: '',
     },
+    templates: content.listTemplates(),
     allTags: content.getTags().map((t) => t.name),
     allCategories: content.getCategories().map((c) => c.name),
   });
@@ -176,6 +186,7 @@ router.get('/edit/:slug', (req, res) => {
       pageTitle: '文章不存在',
       mode: 'missing',
       post: null,
+      templates: [],
       allTags: [],
       allCategories: [],
     });
@@ -197,8 +208,11 @@ router.get('/edit/:slug', (req, res) => {
       summary: String(data.summary || ''),
       cover: String(data.cover || ''),
       draft: data.draft === true,
+      pinned: data.pinned === true,
+      featured: data.featured === true,
       content: source.content,
     },
+    templates: content.listTemplates(),
     allTags: content.getTags().map((t) => t.name),
     allCategories: content.getCategories().map((c) => c.name),
   });
@@ -226,11 +240,27 @@ router.post('/api/save', (req, res, next) => {
       cover: body.cover,
       content: body.content,
       draft: body.draft === true || body.draft === 'true',
+      pinned: body.pinned === true || body.pinned === 'true',
+      featured: body.featured === true || body.featured === 'true',
     });
     res.json({ ok: true, ...result });
   } catch (err) {
     next(err);
   }
+});
+
+/**
+ * 读取写作模板。
+ * 模板内容留在服务端的 content/templates/ 里，前端只拿名字来换内容 ——
+ * 这样加模板是丢一个 .md 文件的事，不用碰任何 JS。
+ */
+router.post('/api/template', (req, res) => {
+  const name = String((req.body && req.body.name) || '');
+  const template = content.getTemplate(name);
+  if (!template) {
+    return res.status(404).json({ ok: false, message: '模板不存在' });
+  }
+  return res.json({ ok: true, template });
 });
 
 /** 删除文章 */

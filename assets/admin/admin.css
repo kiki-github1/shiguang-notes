@@ -231,6 +231,7 @@ body.admin {
 
 .field input[type="text"],
 .field input[type="date"],
+.field select,
 .field textarea {
   width: 100%;
   padding: 7px 9px;
@@ -244,7 +245,11 @@ body.admin {
 
 .field textarea { resize: vertical; }
 
+/* 下拉框在窄侧栏里宽度有限，长模板名不该把侧栏撑破 */
+.field select { cursor: pointer; text-overflow: ellipsis; }
+
 .field input:focus,
+.field select:focus,
 .field textarea:focus,
 .drop-zone:focus {
   outline: none;
@@ -260,6 +265,19 @@ body.admin {
   background: #fdf1ef;
 }
 
+/*
+ * 三个开关（草稿 / 置顶 / 精选）归到一组。
+ * 它们各自独立，但都是「影响这篇文章怎么露脸」的选项，
+ * 用一条细分隔线与上面的内容字段区分开。
+ */
+.field-checks {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 12px 0 2px;
+  border-top: 1px dashed var(--border);
+}
+
 .field-check {
   display: flex;
   align-items: center;
@@ -267,6 +285,12 @@ body.admin {
   font-size: 13px;
   color: var(--text-soft);
   cursor: pointer;
+}
+.field-check input { flex: none; cursor: pointer; }
+.field-check em {
+  color: var(--muted);
+  font-style: normal;
+  font-size: 12px;
 }
 
 .drop-zone {

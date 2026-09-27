@@ -14,9 +14,28 @@ const router = express.Router();
 
 /* -------------------------------- 首页 -------------------------------- */
 router.get('/', (req, res) => {
-  const page = paginate(content.getAllPosts(), req.query.page, config.site.postsPerPage);
-  const featured = content.getAllPosts().filter((p) => p.featured).slice(0, 3);
-  const highlight = page.page === 1 ? (featured.length ? featured : page.items.slice(0, 1)) : [];
+  const all = content.getAllPosts();
+  const page = paginate(all, req.query.page, config.site.postsPerPage);
+
+  /*
+   * 精选区（首页顶部「精選」）的取文规则：
+   *   ① 后台勾了「精選」的文章优先，按 sortPosts 的顺序排（置顶的仍在最前）；
+   *   ② 不足 3 篇时，用日期最新的文章补足。
+   *
+   * 之所以要「补足」而不是「没勾就整块隐藏」：新站往往一篇都没勾，
+   * 首页顶部会留一个大豁口。补位的文章在模板里用 `post.featured`
+   * 区分开，视觉上弱化一档 —— 哪些是真正挑过的，一眼看得出来。
+   *
+   * 补位刻意走独立的日期排序：既然叫「用最新补」，就该是最新的，
+   * 而不是被置顶文章顶到前面来的那几篇。
+   */
+  const HIGHLIGHT_SIZE = 3;
+  const byDate = [...all].sort((a, b) => b.dateObj - a.dateObj);
+  const highlight = page.page === 1
+    ? all.filter((p) => p.featured)
+      .concat(byDate.filter((p) => !p.featured))
+      .slice(0, HIGHLIGHT_SIZE)
+    : [];
 
   res.render('index', {
     title: null,

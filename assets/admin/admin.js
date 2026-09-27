@@ -127,6 +127,9 @@ function initEditor() {
     tags: document.getElementById('f-tags'),
     summary: document.getElementById('f-summary'),
     draft: document.getElementById('f-draft'),
+    pinned: document.getElementById('f-pinned'),
+    featured: document.getElementById('f-featured'),
+    template: document.getElementById('f-template'),
     editor: document.getElementById('editor'),
     preview: document.getElementById('preview'),
     saveState: document.getElementById('save-state'),
@@ -278,6 +281,50 @@ function initEditor() {
   window.addEventListener('dragover', (e) => e.preventDefault());
   window.addEventListener('drop', (e) => e.preventDefault());
 
+  /* ---------------------------- 写作模板 ---------------------------- */
+
+  /*
+   * 模板内容放在服务端 content/templates/ 下，前端只负责「取回来、填进去」。
+   * 因此想加一套新模板，丢一个 .md 进那个目录即可，不必碰这里的任何代码。
+   */
+  async function applyTemplate(name) {
+    if (!name) return;
+
+    const { data } = await postJSON('/admin/api/template', { name });
+    if (!data.ok || !data.template) {
+      toast(data.message || '模板读取失败', 'error');
+      return;
+    }
+
+    const tpl = data.template;
+
+    /*
+     * 有的模板（比如生活随笔）只预设分类与标签、正文是空的。
+     * 这种情况绝不能顺手把正文清掉 —— 那对用户来说是纯粹的破坏。
+     */
+    if (tpl.body) {
+      // 覆盖正文不可撤销，正文非空时必须先问一句
+      if (el.editor.value.trim()
+        && !window.confirm(`正文里已经有内容，套用「${tpl.label}」会把它整段覆盖。\n\n确定继续？`)) {
+        el.template.value = '';
+        return;
+      }
+      el.editor.value = tpl.body;
+    }
+
+    // 分类与标签只在还没填时补上 —— 已有的输入是用户自己敲的，不该被模板顶掉
+    if (tpl.category && !el.category.value.trim()) el.category.value = tpl.category;
+    if (tpl.tags.length && !el.tags.value.trim()) el.tags.value = tpl.tags.join(', ');
+
+    markDirty();
+    schedulePreview();
+    toast(`已套用模板：${tpl.label}`, 'ok');
+  }
+
+  if (el.template) {
+    el.template.addEventListener('change', () => applyTemplate(el.template.value));
+  }
+
   /* ---------------------------- 保存与发布 ---------------------------- */
 
   function collect() {
@@ -289,6 +336,8 @@ function initEditor() {
       tags: (el.tags.value || '').trim(),
       summary: (el.summary.value || '').trim(),
       draft: el.draft.checked,
+      pinned: Boolean(el.pinned && el.pinned.checked),
+      featured: Boolean(el.featured && el.featured.checked),
       content: el.editor.value,
     };
   }
@@ -336,6 +385,17 @@ function initEditor() {
   }
 
   async function saveAndPublish() {
+    /*
+     * 勾着「草稿」却点「保存并发布」是个高频误会：
+     * 本地开发环境会照常显示草稿，线上却被整篇过滤掉，
+     * 于是表现成「发布成功了，线上却找不到」，且毫无提示。
+     * 与其让人对着线上页面反复刷新，不如在这里先问一句。
+     */
+    if (el.draft.checked
+      && !window.confirm('这篇文章标着「草稿」，线上不会显示。\n\n仍要发布吗？')) {
+      return;
+    }
+
     const saved = await save();
     if (!saved) return;
 

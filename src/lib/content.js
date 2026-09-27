@@ -143,6 +143,65 @@ function readPage(name) {
   };
 }
 
+/* ------------------------------ 写作模板 ------------------------------ */
+/*
+ * 模板是「写作脚手架」而非内容：它们放在 content/templates/ 下，
+ * 但**不参与**文章索引（walk 只扫 content/posts 与 content/pages），
+ * 因此写模板文件永远不会被当成文章发布出去。
+ *
+ * 模板以 Markdown 文件承载，理由与文章一致 —— 想加一套自己的模板，
+ * 直接丢一个 .md 进目录即可，不需要改代码。
+ */
+
+const TEMPLATES_DIR = path.join(ROOT, 'content', 'templates');
+
+/*
+ * 模板名白名单。与 readPage 同理：模板名会被拼进文件路径，
+ * 必须从源头掐断 `../`、`/`、`\`、`.` 这类穿越写法。
+ */
+const SAFE_TEMPLATE_NAME = /^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/;
+
+/** 列出全部模板。目录不存在时返回空数组，前端据此隐藏模板下拉 */
+function listTemplates() {
+  if (!fs.existsSync(TEMPLATES_DIR)) return [];
+
+  return walk(TEMPLATES_DIR)
+    .map((file) => {
+      const name = path.basename(file).replace(/\.(md|markdown)$/i, '');
+      if (!SAFE_TEMPLATE_NAME.test(name)) return null;
+
+      const { data = {} } = matter(fs.readFileSync(file, 'utf8'));
+      return {
+        name,
+        label: String(data.label || name).trim(),
+        description: String(data.description || '').trim(),
+        order: Number(data.order) || 0,
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name, 'zh'));
+}
+
+/** 读取单个模板的完整内容（建议的分类、标签与正文骨架） */
+function getTemplate(name) {
+  const key = String(name == null ? '' : name).trim();
+  if (!SAFE_TEMPLATE_NAME.test(key)) return null;
+
+  const file = path.join(TEMPLATES_DIR, `${key}.md`);
+  // 双保险：即便白名单将来被改宽，也要求解析后的真实路径仍在 TEMPLATES_DIR 之内
+  if (!path.resolve(file).startsWith(path.resolve(TEMPLATES_DIR) + path.sep)) return null;
+  if (!fs.existsSync(file)) return null;
+
+  const { data = {}, content = '' } = matter(fs.readFileSync(file, 'utf8'));
+  return {
+    name: key,
+    label: String(data.label || key).trim(),
+    category: String(data.category || '').trim(),
+    tags: toArray(data.tags || data.tag),
+    body: content.replace(/^\s*\n/, ''),
+  };
+}
+
 /** 重建全部索引 */
 function build() {
   const files = walk(POSTS_DIR);
@@ -208,7 +267,14 @@ function build() {
       tagCount: tags.length,
       categoryCount: categories.length,
       totalWords,
-      lastUpdated: posts[0] ? posts[0].date : '',
+      /*
+       * 取真正的最新日期，而不是「排序后第一篇」的日期。
+       * sortPosts 会把置顶文章顶到最前，若直接取 posts[0].date，
+       * 首页「最近更新」会长期显示那篇置顶旧文的日期 —— 置顶一篇，
+       * 整个站点的更新时间就永远停在那天，与实际严重不符。
+       * date 是 YYYY-MM-DD，字典序比较即等价于日期比较。
+       */
+      lastUpdated: posts.reduce((latest, p) => (p.date > latest ? p.date : latest), ''),
       firstYear: archive.length ? archive[archive.length - 1].year : '',
     },
   };
@@ -367,6 +433,10 @@ function savePost(input = {}) {
   }
 
   data.draft = input.draft === true;
+  // 置顶 / 精选只在勾选时写入。取消勾选就删掉该键，而不是写成 `pinned: false`——
+  // 后者会让每个文件都多一行无用字段，把 frontmatter 弄脏。
+  if (input.pinned === true) data.pinned = true;
+  if (input.featured === true) data.featured = true;
 
   fs.mkdirSync(POSTS_DIR, { recursive: true });
   fs.writeFileSync(target, matter.stringify(String(input.content || ''), data), 'utf8');
@@ -409,6 +479,8 @@ module.exports = {
   getSeries,
   getStats,
   getPage,
+  listTemplates,
+  getTemplate,
   getRelated,
   search,
   invalidate,
