@@ -23,6 +23,7 @@ const config = require('./src/config');
 const content = require('./src/lib/content');
 const pagesRouter = require('./src/routes/pages');
 const apiRouter = require('./src/routes/api');
+const adminRouter = require('./src/routes/admin');
 
 const app = express();
 const ROOT = __dirname;
@@ -162,6 +163,20 @@ app.use(
 );
 
 /* -------------------------------- 路由 -------------------------------- */
+
+/*
+ * 后台管理：⚠️ 只在非生产环境挂载。
+ *
+ * 线上站点因此根本不存在 /admin 入口 —— 用部署环境做隔离，比在页面上
+ * 挂个密码框更安全，也少一整类攻击面（弱口令、会话固定、CSRF…）。
+ * 改动这段判断前请务必想清楚后果。
+ */
+if (!isProd) {
+  // 后台要提交整篇正文，单独放宽请求体上限（全局默认只给 64kb）
+  app.use('/admin', express.json({ limit: '2mb' }));
+  app.use('/admin', adminRouter);
+}
+
 app.use('/api', apiRouter);
 app.use('/', pagesRouter);
 

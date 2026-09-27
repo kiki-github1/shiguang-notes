@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= pageTitle %> · 拾光筆記後台</title>
+  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="icon" href="data:,">
+</head>
+<body class="admin">
+  <header class="admin-bar">
+    <div class="admin-bar__left">
+      <span class="admin-brand">拾光筆記 · 後台</span>
+      <span class="admin-hint">仅本地可用，线上不暴露</span>
+    </div>
+    <div class="admin-bar__right">
+      <span class="admin-git" id="git-status">检查仓库状态…</span>
+      <a class="btn btn--ghost" href="/" target="_blank" rel="noopener">预览站点</a>
+      <button type="button" class="btn btn--gold" id="btn-publish-all">发布到线上</button>
+      <a class="btn btn--primary" href="/admin/new">写新文章</a>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <div class="admin-stats">
+      <span><b><%= stats.postCount %></b> 篇文章</span>
+      <span><b><%= stats.tagCount %></b> 个标签</span>
+      <span><b><%= stats.categoryCount %></b> 个分类</span>
+      <span><b><%= stats.totalWords %></b> 字</span>
+    </div>
+
+    <% if (posts.length) { %>
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>标题</th>
+          <th>日期</th>
+          <th>分类</th>
+          <th>标签</th>
+          <th class="num">字数</th>
+          <th class="col-actions">操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% posts.forEach(function (post) { %>
+        <tr>
+          <td>
+            <a class="post-title" href="/admin/edit/<%= post.slug %>"><%= post.title %></a>
+            <% if (post.draft) { %><span class="badge">草稿</span><% } %>
+          </td>
+          <td class="dim"><%= post.date %></td>
+          <td class="dim"><%= post.category %></td>
+          <td class="dim"><%= post.tags.join(' · ') %></td>
+          <td class="dim num"><%= post.words %></td>
+          <td class="col-actions">
+            <a class="btn btn--tiny" href="/admin/edit/<%= post.slug %>">编辑</a>
+            <button type="button" class="btn btn--tiny btn--danger"
+                    data-delete="<%= post.slug %>"
+                    data-title="<%= post.title %>">删除</button>
+          </td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+    <% } else { %>
+      <p class="admin-empty">还没有文章。<a href="/admin/new">写第一篇</a>。</p>
+    <% } %>
+  </main>
+
+  <div class="toast" id="toast" hidden></div>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

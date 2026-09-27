@@ -292,10 +292,110 @@ function search(keyword = '') {
     .map((item) => item.post);
 }
 
-/** 强制清空缓存（未来接入后台编辑后调用） */
+/** 强制清空缓存（后台写入后调用） */
 function invalidate() {
   cache = null;
   cacheSignature = '';
+}
+
+/* ------------------------ 写入接口（后台管理专用） ------------------------ */
+
+/*
+ * slug 白名单。与 readPage 同理：这是把外部输入拼进文件路径的地方，
+ * 必须从源头掐断穿越 —— 只允许小写字母数字与连字符，`../`、`/`、`\`、`.` 全部被拒。
+ */
+const SAFE_SLUG = /^[a-z0-9][a-z0-9-]{0,79}$/;
+
+/** 按 slug 定位磁盘上的实际文件（兼容 `2026-09-20-标题.md` 这类带日期前缀的命名） */
+function findPostFile(slug) {
+  return walk(POSTS_DIR).find((file) => slugFromFile(file) === slug) || null;
+}
+
+/** 读取文章原始源码，保留完整 frontmatter（编辑器需要原样回填） */
+function getPostSource(slug) {
+  const key = String(slug == null ? '' : slug).trim();
+  if (!SAFE_SLUG.test(key)) return null;
+
+  const file = findPostFile(key);
+  if (!file) return null;
+
+  const { data = {}, content = '' } = matter(fs.readFileSync(file, 'utf8'));
+  return {
+    slug: key,
+    file: path.relative(ROOT, file).replace(/\\/g, '/'),
+    data,
+    content,
+  };
+}
+
+/**
+ * 保存文章（新建或覆盖）。
+ * 写操作同样收敛在内容层，路由不直接碰文件系统 —— 将来换存储只需改这里。
+ * 编辑已有文章时写回原文件；新建时按 `日期-slug.md` 命名，与既有风格一致。
+ */
+function savePost(input = {}) {
+  const slug = String(input.slug || '').trim();
+  if (!SAFE_SLUG.test(slug)) {
+    const err = new Error('slug 只能由小写字母、数字和连字符组成，且以字母或数字开头');
+    err.status = 400;
+    throw err;
+  }
+
+  const existing = findPostFile(slug);
+  const date = String(input.date || '').trim() || dayjs().format('YYYY-MM-DD');
+  const target = existing || path.join(POSTS_DIR, `${date}-${slug}.md`);
+
+  // 双保险：即便白名单将来被改宽，也要求解析后的真实路径仍在 POSTS_DIR 之内
+  if (!path.resolve(target).startsWith(path.resolve(POSTS_DIR) + path.sep)) {
+    const err = new Error('目标路径越界');
+    err.status = 400;
+    throw err;
+  }
+
+  const data = { title: String(input.title || slug).trim(), date };
+  const tags = toArray(input.tags);
+  if (tags.length) data.tags = tags;
+
+  for (const [key, value] of [
+    ['category', input.category],
+    ['summary', input.summary],
+    ['cover', input.cover],
+    ['series', input.series],
+  ]) {
+    const text = String(value == null ? '' : value).trim();
+    if (text) data[key] = text;
+  }
+
+  data.draft = input.draft === true;
+
+  fs.mkdirSync(POSTS_DIR, { recursive: true });
+  fs.writeFileSync(target, matter.stringify(String(input.content || ''), data), 'utf8');
+  invalidate();
+
+  return { slug, file: path.relative(ROOT, target).replace(/\\/g, '/'), created: !existing };
+}
+
+/** 删除文章，返回是否真的删掉了文件 */
+function deletePost(slug) {
+  const key = String(slug == null ? '' : slug).trim();
+  if (!SAFE_SLUG.test(key)) {
+    const err = new Error('slug 不合法');
+    err.status = 400;
+    throw err;
+  }
+
+  const file = findPostFile(key);
+  if (!file) return false;
+
+  if (!path.resolve(file).startsWith(path.resolve(POSTS_DIR) + path.sep)) {
+    const err = new Error('目标路径越界');
+    err.status = 400;
+    throw err;
+  }
+
+  fs.unlinkSync(file);
+  invalidate();
+  return true;
 }
 
 module.exports = {
@@ -312,4 +412,7 @@ module.exports = {
   getRelated,
   search,
   invalidate,
+  getPostSource,
+  savePost,
+  deletePost,
 };

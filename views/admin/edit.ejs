@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= pageTitle %> · 拾光筆記後台</title>
+  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="icon" href="data:,">
+</head>
+<body class="admin admin--editor">
+  <header class="admin-bar">
+    <div class="admin-bar__left">
+      <a class="btn btn--ghost" href="/admin">← 返回列表</a>
+      <span class="admin-title"><%= pageTitle %></span>
+    </div>
+    <div class="admin-bar__right">
+      <span class="admin-git" id="save-state">未保存</span>
+      <button type="button" class="btn btn--ghost" id="btn-preview">预览</button>
+      <button type="button" class="btn btn--primary" id="btn-save">保存</button>
+      <button type="button" class="btn btn--gold" id="btn-publish">保存并发布</button>
+    </div>
+  </header>
+
+  <% if (mode === 'missing' || !post) { %>
+    <main class="admin-main">
+      <p class="admin-empty">文章不存在，可能已被删除。<a href="/admin">返回列表</a></p>
+    </main>
+  <% } else { %>
+  <main class="admin-main admin-main--editor" data-mode="<%= mode %>" data-slug="<%= post.slug %>">
+    <aside class="editor-meta">
+      <label class="field">
+        <span>标题</span>
+        <input type="text" id="f-title" value="<%= post.title %>" placeholder="文章标题">
+      </label>
+
+      <label class="field">
+        <span>URL 标识<em><%= mode === 'edit' ? '（已固定，改动会断链）' : '（小写字母数字连字符）' %></em></span>
+        <input type="text" id="f-slug" value="<%= post.slug %>" placeholder="my-post-name" <%= mode === 'edit' ? 'readonly' : '' %>>
+      </label>
+
+      <label class="field">
+        <span>日期</span>
+        <input type="date" id="f-date" value="<%= post.date %>">
+      </label>
+
+      <label class="field">
+        <span>分类</span>
+        <input type="text" id="f-category" value="<%= post.category %>" list="category-list" placeholder="技术笔记">
+        <datalist id="category-list"><% allCategories.forEach(function (item) { %><option value="<%= item %>"></option><% }); %></datalist>
+      </label>
+
+      <label class="field">
+        <span>标签<em>（逗号分隔）</em></span>
+        <input type="text" id="f-tags" value="<%= post.tags %>" list="tag-list" placeholder="Node.js, 性能优化">
+        <datalist id="tag-list"><% allTags.forEach(function (item) { %><option value="<%= item %>"></option><% }); %></datalist>
+      </label>
+
+      <label class="field">
+        <span>摘要<em>（留空自动截取）</em></span>
+        <textarea id="f-summary" rows="3"><%= post.summary %></textarea>
+      </label>
+
+      <label class="field-check">
+        <input type="checkbox" id="f-draft" <%= post.draft ? 'checked' : '' %>>
+        <span>存为草稿（线上不显示）</span>
+      </label>
+
+      <div class="drop-zone" id="drop-zone" tabindex="0">
+        <strong>拖拽图片到这里</strong>
+        <span>或点击选择文件 · 最大 8 MB</span>
+        <input type="file" id="file-input" accept="image/*" hidden>
+      </div>
+    </aside>
+
+    <section class="editor-panes" id="panes">
+      <div class="pane">
+        <div class="pane-head">Markdown</div>
+        <textarea id="editor" spellcheck="false" placeholder="在这里写正文，支持 Markdown 语法…"><%= post.content %></textarea>
+      </div>
+      <div class="pane pane--preview">
+        <div class="pane-head">预览</div>
+        <div class="pane-body" id="preview"></div>
+      </div>
+    </section>
+  </main>
+  <% } %>
+
+  <div class="toast" id="toast" hidden></div>
+  <script src="/js/admin.js"></script>
+</body>
+</html>
