@@ -89,7 +89,16 @@ app.use(
 );
 
 /* ---------------------------- 请求体解析 ---------------------------- */
-// 目前没有写接口，属于预防性配置：限定体积，避免将来加接口时被大包打爆
+/*
+ * 后台要提交整篇正文，必须**先于**全局解析器挂载。
+ * express.json 见到已解析的 body 会跳过，但**先执行的那个**会先抛
+ * PayloadTooLargeError —— 若让 64kb 的全局解析器先跑，长文章就存不进去。
+ */
+if (!isProd) {
+  app.use('/admin', express.json({ limit: '2mb' }));
+}
+
+// 其余接口目前没有写入路径，属预防性配置：限定体积，避免将来加接口时被大包打爆
 app.use(express.json({ limit: '64kb' }));
 app.use(express.urlencoded({ extended: false, limit: '64kb' }));
 
@@ -126,8 +135,8 @@ const onRateLimited = (req, res, next, options) => {
   res.set('Retry-After', String(Math.ceil((options.windowMs || 60000) / 1000)));
   // 挂在 ['/search','/api/search'] 这类数组路径上时，Express 会把命中的前缀
   // 从 req.path 里剥掉，因此这里必须用 originalUrl 判断是否为 API 请求
-  if (req.originalUrl.startsWith('/api/')) {
-    return res.json({ error: 'RATE_LIMITED', message: '请求过于频繁，请稍后再试' });
+  if (req.originalUrl.startsWith('/api/') || req.originalUrl.startsWith('/admin/api/')) {
+    return res.json({ ok: false, error: 'RATE_LIMITED', message: '请求过于频繁，请稍后再试' });
   }
   return res.render('404', {
     title: '請求過於頻繁',
@@ -172,8 +181,7 @@ app.use(
  * 改动这段判断前请务必想清楚后果。
  */
 if (!isProd) {
-  // 后台要提交整篇正文，单独放宽请求体上限（全局默认只给 64kb）
-  app.use('/admin', express.json({ limit: '2mb' }));
+  // 请求体解析器已在上方「请求体解析」段提前挂载 —— 必须早于全局的 64kb 上限
   app.use('/admin', adminRouter);
 }
 
@@ -183,8 +191,8 @@ app.use('/', pagesRouter);
 /* ------------------------------- 404 兜底 ------------------------------ */
 app.use((req, res) => {
   res.status(404);
-  if (req.path.startsWith('/api/')) {
-    return res.json({ error: 'NOT_FOUND', message: '接口不存在' });
+  if (req.path.startsWith('/api/') || req.path.startsWith('/admin/api/')) {
+    return res.json({ ok: false, error: 'NOT_FOUND', message: '接口不存在' });
   }
   return res.render('404', {
     title: '页面走丢了',
@@ -200,9 +208,24 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   console.error('[error]', err);
   res.status(err.status || 500);
-  if (req.path.startsWith('/api/')) {
-    return res.json({ error: 'SERVER_ERROR', message: '服务异常' });
+
+  /*
+   * API 请求一律回 JSON，绝不渲染模板。
+   *
+   * 路径判断必须带上 `/admin/api` —— 后台的 API 不以 `/api/` 开头。
+   * 更要紧的是：若落到下面的 res.render，在「请求体解析阶段」就出错的场景
+   * （例如 body 超过上限）会因为 res.locals.site 尚未初始化而二次抛错，
+   * 用户只会看到一个空白错误页，连报错原因都拿不到。
+   */
+  if (req.path.startsWith('/api/') || req.path.startsWith('/admin/api/')) {
+    const tooLarge = err.type === 'entity.too.large';
+    return res.json({
+      ok: false,
+      error: tooLarge ? 'PAYLOAD_TOO_LARGE' : 'SERVER_ERROR',
+      message: tooLarge ? '内容太大了，单次提交上限 2 MB' : '服务异常',
+    });
   }
+
   return res.render('404', {
     title: '服务异常',
     description: '服务器内部错误',

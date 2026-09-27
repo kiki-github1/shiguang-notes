@@ -24,6 +24,13 @@ const ROOT = path.resolve(__dirname, '..', '..');
 const UPLOAD_DIR = path.join(ROOT, 'public', 'images', 'uploads');
 const UPLOAD_URL_PREFIX = '/images/uploads';
 
+/** 本地时区的今天（YYYY-MM-DD）。toISOString 走的是 UTC，跨时区会差一天 */
+function today() {
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
 /* ------------------------------ 后台静态资源 ------------------------------ */
 /*
  * 刻意**不**放进 public/：那样 express.static 在生产环境照样会把文件发出去，
@@ -137,7 +144,7 @@ router.get('/new', (req, res) => {
     post: {
       slug: '',
       title: '',
-      date: '',
+      date: today(),
       tags: '',
       category: '',
       summary: '',
@@ -305,6 +312,25 @@ router.post('/api/publish', async (req, res) => {
       steps,
     });
   }
+});
+
+/* -------------------------------- 错误处理 -------------------------------- */
+/*
+ * 后台的 API 必须自己兜住错误。
+ *
+ * 全局错误处理只认 `/api/` 前缀，会把 `/admin/api/*` 的错误渲染成 HTML 页面，
+ * 前端 res.json() 直接解析失败，用户只看到一句「响应解析失败」——
+ * 既不知道发生了什么，也不知道该怎么办。
+ */
+router.use((err, req, res, next) => {
+  if (req.path.startsWith('/api/')) {
+    const tooLarge = err.type === 'entity.too.large';
+    return res.status(tooLarge ? 413 : err.status || 500).json({
+      ok: false,
+      message: tooLarge ? '内容太大了，单次提交上限 2 MB' : err.message || '服务异常',
+    });
+  }
+  return next(err);
 });
 
 module.exports = router;

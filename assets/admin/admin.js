@@ -188,6 +188,17 @@ function initEditor() {
     schedulePreview();
   });
 
+  /* slug 只允许小写字母数字与连字符 —— 输入时就给反馈，别等到点保存才报错 */
+  const SLUG_PATTERN = /^[a-z0-9][a-z0-9-]*$/;
+  if (el.slug && !el.slug.readOnly) {
+    el.slug.addEventListener('input', () => {
+      const value = el.slug.value.trim();
+      const invalid = value.length > 0 && !SLUG_PATTERN.test(value);
+      el.slug.classList.toggle('is-invalid', invalid);
+      el.slug.title = invalid ? '只能用小写字母、数字和连字符' : '';
+    });
+  }
+
   // Tab 插入两个空格而不是跳走焦点
   el.editor.addEventListener('keydown', (e) => {
     if (e.key !== 'Tab') return;
@@ -292,6 +303,12 @@ function initEditor() {
     }
     if (!payload.slug) {
       toast('请先填写 URL 标识（slug）', 'error');
+      el.slug.focus();
+      return null;
+    }
+    // 与后端的 SAFE_SLUG 保持一致，提前拦住，别等提交后才报错
+    if (!SLUG_PATTERN.test(payload.slug)) {
+      toast('URL 标识只能用小写字母、数字和连字符，例如 my-first-post', 'error');
       el.slug.focus();
       return null;
     }

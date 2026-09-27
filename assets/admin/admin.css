@@ -254,6 +254,12 @@ body.admin {
 
 .field input[readonly] { background: var(--surface-2); color: var(--muted); }
 
+/* slug 输入非法时的提示态 */
+.field input.is-invalid {
+  border-color: var(--accent);
+  background: #fdf1ef;
+}
+
 .field-check {
   display: flex;
   align-items: center;
