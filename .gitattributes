@@ -9,6 +9,9 @@
 # 这条必须放在上面那条通配规则之后，gitattributes 是后面的覆盖前面的。
 *.bat  text eol=crlf
 *.cmd  text eol=crlf
+# .vbs 同理：Windows 脚本宿主对 LF 的容忍度不如 cmd，且这个文件必须保持
+# 纯 ASCII（wscript 按系统 ANSI 代码页解析源文件，中文会乱码）。
+*.vbs  text eol=crlf
 
 # 二进制文件不做换行转换，否则会被损坏
 *.png  binary

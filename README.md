@@ -71,14 +71,13 @@ slug: custom-url                   # 可选，覆盖从文件名推导的 URL
 不想每次都手动建文件、敲 git 命令，可以开图形化后台。
 
 **双击 `start-admin.bat` 即可**（首次运行会顺手在桌面创建一个带图标的快捷方式，
-以后直接双击桌面上的「拾光笔记 写作后台」）。服务就绪后会自动弹出一个
-**独立应用窗口**，没有地址栏和标签页 —— 观感与桌面应用一致，靠的是
-Chrome / Edge 的 `--app=` 模式，不需要引入 Electron。
+以后直接双击桌面上的「拾光笔记 写作后台」图标即可 —— 不会有黑色命令行窗口）。
+服务就绪后会自动弹出一个**独立应用窗口**，没有地址栏和标签页 ——
+观感与桌面应用一致，靠的是 Chrome / Edge 的 `--app=` 模式，不需要引入 Electron。
 
-关掉那个命令行窗口就是退出后台。
-
-> 手动跑也行：`npm run dev`，然后浏览器打开 `http://127.0.0.1:3000/admin`。
-> 但这样开出来的是普通标签页，少了「应用窗口」那层体验。
+> 桌面图标其实是 `tools/launch-hidden.vbs` 包了一层（用 `WScript.Shell` 以隐藏窗口方式
+> 调起 `start-admin.bat`），这样命令行窗口才不会被你看到。
+> 想看启动日志做诊断，直接双击 `start-admin.bat`，会显示一个有内容的可见窗口。
 
 界面提供：
 
@@ -89,8 +88,31 @@ Chrome / Edge 的 `--app=` 模式，不需要引入 Electron。
 - **展示开关** —— 草稿 / 置顶 / 精选三个勾选项，分别对应 frontmatter 的 `draft` / `pinned` / `featured`
 - **图片上传** —— 拖拽或点击选择，自动存到 `public/images/uploads/` 并插入 Markdown 链接
 - **一键发布** —— 自动执行 `git add / commit / push`，GitHub 收到后 Render 自动重新部署
+- **退出后台** —— 顶栏最右侧「退出」按钮。命令行窗口被藏起来之后，这是唯一正经的出口
 
 快捷键：`Ctrl/Cmd + S` 保存，`Ctrl/Cmd + Shift + S` 保存并发布。
+
+### 为什么双击图标没有黑窗口
+
+启动链是这样的：
+
+```
+桌面图标 → tools/launch-hidden.vbs
+          → 以隐藏窗口方式调起 start-admin.bat
+          → 后者用 VBS 探测到的 node.exe（不依赖 PATH）跑 tools/launch.js
+          → 后者启动 server.js，并设置 ADMIN_APP=1
+          → server.js 在 listen 回调里以 --app= 模式拉起 Chrome/Edge
+```
+
+之所以这么绕，是因为：
+
+- `wscript` 按系统 ANSI 代码页（中文 Windows 是 GBK）读 `.vbs` 源文件，写进去的中文会变乱码；
+  所以 `.vbs` 必须纯 ASCII，中文提示一律留在 `start-admin.bat` 里（`echo` 对中文 OK）
+- Explorer 会缓存 PATH —— 装完 Node.js 不重启资源管理器的话，新进程是看不到 node 的，
+  `where node` 会假报错。`launch-hidden.vbs` 主动从几个标准位置（ProgramFiles / LOCALAPPDATA
+  等）探测 `node.exe`，把绝对路径传给 `start-admin.bat`，绕开这个坑
+- `--app=` 模式若复用 Chrome 的默认用户目录，上一次会话没退干净时会卡在「Profile in use」
+  上，新窗口一片白板且没法关。所以每次启动用一个全新的临时目录作为 Chrome profile
 
 ### 首页展示规则
 
@@ -231,6 +253,7 @@ GET /api/stats                站点统计
 │   │   ├── content.js       内容仓库：扫描、解析、索引、缓存、查询
 │   │   ├── markdown.js      Markdown 渲染：高亮、锚点、目录提取
 │   │   ├── open-app.js      以应用窗口打开后台 / 交给系统浏览器打开链接
+│   │   └── probe-admin.js   探测某端口上跑的到底是不是本项目后台
 │   │   └── utils.js         日期、摘要、字数、分页等工具
 │   └── routes/
 │       ├── pages.js         页面路由
@@ -258,8 +281,9 @@ GET /api/stats                站点统计
 ├── tools/
 │   ├── security-check.js    安全自检脚本（敏感文件 / 穿越 / XSS / 限流 / 响应头）
 │   ├── make-icons.js        从 favicon.svg 生成多尺寸 .ico
-│   └── launch.js            双击启动的入口（建桌面图标 + 起服务）
-└── start-admin.bat          双击启动本地后台（并弹出应用窗口）
+│   ├── launch.js            双击启动的入口（修 PATH + 建桌面图标 + 起服务）
+│   └── launch-hidden.vbs    VBS 包装器：以隐藏窗口方式调起 bat，藏起命令行
+└── start-admin.bat          双击启动本地后台（同时是 bat 形式的诊断窗口）
 ```
 
 ## 扩展方向

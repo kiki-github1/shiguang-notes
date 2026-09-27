@@ -130,6 +130,30 @@ body.admin {
 .btn--danger:hover { background: #f7e6e3; }
 
 /*
+ * 「退出」这类破坏性操作退到视觉末位：默认没有边框、颜色也淡，
+ * 悬停才浮出朱砂色。它跟「发布到线上」挨得近，不能长得一样显眼。
+ */
+.btn--quiet {
+  padding-left: 9px;
+  padding-right: 9px;
+  border-color: transparent;
+  color: var(--muted);
+}
+.btn--quiet:hover {
+  color: var(--accent);
+  border-color: #d9b3ae;
+  background: #f7e6e3;
+}
+
+/* 顶栏里把「退出」和日常操作隔开，降低误点概率 */
+.admin-bar__sep {
+  flex: none;
+  width: 1px;
+  height: 18px;
+  background: var(--border);
+}
+
+/*
  * 按钮图标：固定尺寸、不参与伸缩。
  * 颜色不在这里指定 —— SVG 用的是 stroke="currentColor"，
  * 跟着按钮文字走，hover / danger 态都不必单独配。
@@ -491,6 +515,64 @@ body.admin {
 
 .toast--ok { background: #245c3c; }
 .toast--error { background: #7d241d; }
+
+/* ------------------------------- 退出收尾 ------------------------------- */
+
+/*
+ * 退出后台后盖住整页。
+ *
+ * 用不透明的整块而不是半透明遮罩：服务这时已经停了，界面上任何还能看见的
+ * 按钮都会让人以为还能点，点了却没反应，比什么都不显示更让人困惑。
+ */
+.farewell {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg);
+}
+
+/* 类选择器会盖掉浏览器对 [hidden] 的默认 display:none，得显式写回来 */
+.farewell[hidden] { display: none; }
+
+.farewell__card {
+  width: 100%;
+  max-width: 380px;
+  padding: 34px 30px 28px;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 18px 44px -28px rgba(46, 40, 32, 0.5);
+}
+
+.farewell__seal { display: inline-block; color: var(--accent); }
+.farewell__seal .ico { width: 34px; height: 34px; }
+
+.farewell h1 {
+  margin: 14px 0 10px;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.farewell__lead {
+  margin: 0 0 18px;
+  color: var(--text-soft);
+  font-size: 13.5px;
+}
+
+.farewell__hint {
+  margin: 0;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border);
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.9;
+}
 
 /* -------------------------------- 响应式 -------------------------------- */
 

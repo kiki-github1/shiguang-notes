@@ -102,6 +102,11 @@ function git(args, { timeout = 60000 } = {}) {
 function explainGitError(err) {
   const raw = `${err.stderr || ''} ${err.message || ''}`;
 
+  // 根本没装上 git（或者不在 PATH 里）时，原始报错是一句 `spawn git ENOENT`，
+  // 对用户毫无信息量。这条必须排在最前 —— 后面所有模式都匹配不到它。
+  if (/ENOENT/.test(raw)) {
+    return '这台电脑上找不到 git 命令。确认已安装 Git 并加入系统 PATH 后重试；也可以直接在终端里执行 git push。';
+  }
   // 先判密钥被拒：这条也含 "Permission denied"，必须排在权限判断之前
   if (/Permission denied \(publickey\)/i.test(raw)) {
     return 'SSH 密钥未被 GitHub 接受。检查 ~/.ssh/config 里的 IdentityFile 是否指向已添加到 GitHub 账号的那把密钥。';
@@ -278,6 +283,25 @@ router.post('/api/open-site', (req, res) => {
   const url = `http://127.0.0.1:${config.server.port}/`;
   openInBrowser(url);
   res.json({ ok: true, url });
+});
+
+/**
+ * 退出后台进程。
+ *
+ * 桌面图标启动时命令行窗口是隐藏的，用户没有别的办法把服务停掉 ——
+ * 不给这个出口，就只能去任务管理器里杀进程。
+ *
+ * ⚠️ 顺序不能反：必须先把响应完整发出去，再退出进程。
+ * 反过来写的话，前端 fetch 会因为连接被重置而抛网络错误，
+ * 「退出成功」在界面上就表现成「请求失败」，反而让人以为没退掉。
+ */
+router.post('/api/quit', (req, res) => {
+  res.json({ ok: true, message: '后台已退出' });
+
+  // 等响应真正落盘再退，给浏览器留出收到它的时间
+  res.on('finish', () => {
+    setTimeout(() => process.exit(0), 300);
+  });
 });
 
 /** 删除文章 */

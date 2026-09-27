@@ -1,0 +1,18 @@
+<%#
+  退出后台之后盖住整个窗口的收尾页。
+
+  命令行窗口被藏起来之后，点「退出后台」就成了唯一的出口 ——
+  没有这个页面，用户只会看到一个不再响应的后台界面，不知道是退出了还是卡住了。
+  所以这里要明确地说清楚：服务停了、东西都存好了、窗口可以关了。
+%>
+<div class="farewell" id="farewell" hidden>
+  <div class="farewell__card">
+    <span class="farewell__seal"><%- include('icon', { name: 'seal' }) %></span>
+    <h1>後台已退出</h1>
+    <p class="farewell__lead" id="farewell-lead">服务已经停止，文章都已保存到本地文件。</p>
+    <p class="farewell__hint">
+      这个窗口可以关掉了。<br>
+      想继续写作，双击桌面上的「拾光笔记 写作后台」图标即可。
+    </p>
+  </div>
+</div>

@@ -22,6 +22,7 @@ const rateLimit = require('express-rate-limit');
 const config = require('./src/config');
 const content = require('./src/lib/content');
 const { openAsApp } = require('./src/lib/open-app');
+const { probeAdmin } = require('./src/lib/probe-admin');
 const pagesRouter = require('./src/routes/pages');
 const apiRouter = require('./src/routes/api');
 const adminRouter = require('./src/routes/admin');
@@ -277,15 +278,34 @@ const server = app.listen(port, host, () => {
   }
 });
 
-/* 端口被占用是双击启动时最常见的失败，单独给一句人话，别甩一堆堆栈 */
-server.on('error', (err) => {
-  if (err.code === 'EADDRINUSE') {
-    console.error(`\n  ✗ 端口 ${port} 已被占用，后台可能已经在运行了。`);
-    console.error('    先找找有没有已经打开的后台窗口，或者关掉那个还留着的');
-    console.error('    「拾光笔记 · 本地后台」命令行窗口，再双击图标重试。\n');
+/*
+ * 端口被占用是双击启动时最常见的失败，单独给一句人话，别甩一堆堆栈。
+ *
+ * 但「被占用」有两种完全不同的情况，光看端口号分不出来：
+ *   1. 后台本来就在跑 —— 用户多半只是把窗口关了，这时把窗口调出来就好，
+ *      报错反而让人以为程序坏了，于是反复双击
+ *   2. 别的程序占了同一个端口 —— 这时必须说清楚，否则用户无从下手
+ * 所以去问一下那个端口上返回的是不是本项目的后台页面。
+ */
+server.on('error', async (err) => {
+  if (err.code !== 'EADDRINUSE') {
+    console.error('[error]', err);
     process.exit(1);
   }
-  throw err;
+
+  const url = `http://127.0.0.1:${port}/admin`;
+
+  if (process.env.ADMIN_APP === '1' && (await probeAdmin(port))) {
+    openAsApp(url);
+    console.log(`  ℹ 后台已经在运行了，已为你打开它的窗口： ${url}\n`);
+    process.exit(0);
+  }
+
+  console.error(`\n  ✗ 端口 ${port} 已被别的程序占用，后台起不来。`);
+  console.error('    先看看是不是已经开着一个后台窗口；如果确实没有，');
+  console.error(`    就是别的程序占着 ${port}，把它关掉再双击图标。\n`);
+  // 退出码 2 = 端口冲突。launch-hidden.vbs 据此把窗口显出来，别让提示石沉大海
+  process.exit(2);
 });
 
 // 连接层加固：缩短头部/请求超时，压制 Slowloris 这类慢速耗尽攻击

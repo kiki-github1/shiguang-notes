@@ -18,6 +18,9 @@
       <button type="button" class="btn btn--ghost" id="btn-preview"><%- include('partials/icon', { name: 'eye' }) %>预览</button>
       <button type="button" class="btn btn--primary" id="btn-save"><%- include('partials/icon', { name: 'check' }) %>保存</button>
       <button type="button" class="btn btn--gold" id="btn-publish"><%- include('partials/icon', { name: 'upload' }) %>保存并发布</button>
+      <%# 启动时命令行窗口被藏起来了，这里是唯一的退出出口 %>
+      <span class="admin-bar__sep" aria-hidden="true"></span>
+      <button type="button" class="btn btn--ghost btn--quiet" id="btn-quit"><%- include('partials/icon', { name: 'power' }) %>退出</button>
     </div>
   </header>
 
@@ -108,6 +111,8 @@
     </section>
   </main>
   <% } %>
+
+  <%- include('partials/farewell') %>
 
   <div class="toast" id="toast" hidden></div>
   <script src="/admin/assets/admin.js"></script>

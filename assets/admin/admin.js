@@ -7,6 +7,9 @@
 
 /* --------------------------------- 公共 --------------------------------- */
 
+/** 跨模块共享的一点状态：编辑器里是否有未保存的改动（退出前要问一句） */
+const appState = { dirty: false };
+
 const toastEl = document.getElementById('toast');
 let toastTimer = null;
 
@@ -159,6 +162,7 @@ function initEditor() {
 
   function markDirty() {
     dirty = true;
+    appState.dirty = true;
     setState('未保存', 'dirty');
   }
 
@@ -393,6 +397,7 @@ function initEditor() {
     }
 
     dirty = false;
+    appState.dirty = false;
     setState('已保存');
     toast('已保存到本地文件', 'ok');
     return data;
@@ -449,7 +454,48 @@ function initEditor() {
   renderPreview();
 }
 
+/* -------------------------------- 退出后台 -------------------------------- */
+
+/*
+ * 命令行窗口被藏起来之后，「退出后台」成了唯一正经的出口 ——
+ * 没有它，用户只能去任务管理器里杀进程。
+ *
+ * 顺序上有意反过来：先把界面切到收尾页，再把请求发出去。
+ * 服务器收到请求就准备退出了，连接必然会被掐断；若写成 await 之后再切界面，
+ * 「退出成功」会表现成一句「请求失败」，反而让人以为没退掉。
+ */
+function showFarewell(lead) {
+  const screen = document.getElementById('farewell');
+  if (!screen) return;
+  const leadEl = document.getElementById('farewell-lead');
+  if (leadEl && lead) leadEl.textContent = lead;
+  screen.hidden = false;
+}
+
+function initQuit() {
+  const btn = document.getElementById('btn-quit');
+  if (!btn) return;
+
+  btn.addEventListener('click', () => {
+    const lines = ['退出后台？', '', '服务会停止，已经保存的文件不受影响。'];
+    if (appState.dirty) {
+      lines.push('', '⚠ 当前文章还有没保存的改动，退出后会丢失。');
+    }
+    if (!window.confirm(lines.join('\n'))) return;
+
+    showFarewell(
+      appState.dirty
+        ? '服务已经停止。未保存的改动没有写入文件，其余内容都已保存。'
+        : undefined
+    );
+
+    // 不 await：这个请求注定会被掐断，失败是预期内的
+    postJSON('/admin/api/quit', {}).catch(() => {});
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initList();
   initEditor();
+  initQuit();
 });

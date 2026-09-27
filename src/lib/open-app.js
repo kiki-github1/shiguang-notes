@@ -11,6 +11,8 @@
  * 功能不受影响，只是少了那层「应用感」。
  */
 const fs = require('fs');
+const os = require('os');
+const path = require('path');
 const { spawn } = require('child_process');
 
 /** 常见安装位置，按「最可能命中」的顺序排。允许用 ADMIN_BROWSER_PATH 手动指定 */
@@ -45,13 +47,47 @@ function openAsApp(url) {
   const browser = findBrowser();
 
   if (browser) {
-    spawn(browser, [`--app=${url}`, '--window-size=1400,920'], {
-      // detached + unref：浏览器独立于本进程，关掉服务不会连带把它杀掉，
-      // 用户仍能看到页面上的「无法连接」提示，而不是窗口凭空消失。
-      detached: true,
-      stdio: 'ignore',
-      windowsHide: true,
-    }).unref();
+    /*
+     * 用一个固定的临时目录当 Chrome 用户配置目录，每次启动先清空再建。
+     *
+     * 复用默认配置目录会踩两个坑：
+     *   1. 上一次 --app= 会话没退干净（崩溃 / 任务管理器强杀），下一次启动
+     *      Chrome 会卡在「Profile is in use by another process」之类的恢复流程，
+     *      新窗口就此一片空白、连 X 都按不动 —— 用户报告的就是这种状态
+     *   2. 默认配置里累积的扩展、cookie 与磁盘缓存也会拖慢首屏
+     * 本地写作后台不需要保留任何状态（无登录、无扩展、无 cookie），每次给一个
+     * 干净的反倒最稳。
+     *
+     * 同步操作：服务进程就在这里停一下，相比异步 race 来说反而更确定。
+     */
+    const profileDir = path.join(os.tmpdir(), 'shiguang-admin-profile');
+    try {
+      fs.rmSync(profileDir, { recursive: true, force: true });
+    } catch {
+      // 清不掉的旧目录不影响这次启动，Chrome 还能自己建
+    }
+    fs.mkdirSync(profileDir, { recursive: true });
+
+    spawn(
+      browser,
+      [
+        `--app=${url}`,
+        '--window-size=1400,920',
+        `--user-data-dir=${profileDir}`,
+        // 关掉「Chrome 是否要设为默认浏览器」的弹窗 —— 在 --app= 模式下那种弹窗
+        // 会把用户唯一的视觉焦点挡住，体验极差
+        '--no-default-browser-check',
+        // 关掉「上次的 Chrome 崩溃了，要恢复吗」的提示条，避免窗口一片空白
+        '--disable-session-crashed-bubble',
+      ],
+      {
+        // detached + unref：浏览器独立于本进程，关掉服务不会连带把它杀掉，
+        // 用户仍能看到页面上的「无法连接」提示，而不是窗口凭空消失。
+        detached: true,
+        stdio: 'ignore',
+        windowsHide: true,
+      }
+    ).unref();
     return { mode: 'app', browser };
   }
 

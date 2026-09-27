@@ -20,6 +20,9 @@
       <button type="button" class="btn btn--ghost" id="btn-view-site"><%- include('partials/icon', { name: 'external' }) %>预览站点</button>
       <button type="button" class="btn btn--gold" id="btn-publish-all"><%- include('partials/icon', { name: 'upload' }) %>发布到线上</button>
       <a class="btn btn--primary" href="/admin/new"><%- include('partials/icon', { name: 'plus' }) %>写新文章</a>
+      <%# 启动时命令行窗口被藏起来了，这里是唯一的退出出口 %>
+      <span class="admin-bar__sep" aria-hidden="true"></span>
+      <button type="button" class="btn btn--ghost btn--quiet" id="btn-quit"><%- include('partials/icon', { name: 'power' }) %>退出后台</button>
     </div>
   </header>
 
@@ -68,6 +71,8 @@
       <p class="admin-empty">还没有文章。<a href="/admin/new">写第一篇</a>。</p>
     <% } %>
   </main>
+
+  <%- include('partials/farewell') %>
 
   <div class="toast" id="toast" hidden></div>
   <script src="/admin/assets/admin.js"></script>
