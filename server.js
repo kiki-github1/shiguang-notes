@@ -244,6 +244,18 @@ const server = app.listen(port, host, () => {
   console.log(`  限流：全站 ${security.global.limit} 次/分，搜索 ${security.search.limit} 次/分`);
   console.log(`  HSTS：${security.hsts ? '已开启' : '已关闭（本地开发）'}`);
   console.log(`  trust proxy：${config.server.trustProxy ? '开启' : '关闭'}\n`);
+
+  /*
+   * 生产环境没配 SITE_URL 是个静默故障：RSS / sitemap / robots.txt 里的
+   * 链接会全变成 http://localhost:3000，页面本身看起来却完全正常，
+   * 不主动检查根本发现不了。这里在启动时就把它喊出来。
+   */
+  if (isProd && !process.env.SITE_URL) {
+    console.warn(
+      '  ⚠️  未设置 SITE_URL —— RSS / sitemap / robots.txt 里的链接会是 localhost:3000。\n' +
+      '     在托管平台的「环境变量」里加一条 SITE_URL=https://你的域名 即可。\n'
+    );
+  }
 });
 
 // 连接层加固：缩短头部/请求超时，压制 Slowloris 这类慢速耗尽攻击
